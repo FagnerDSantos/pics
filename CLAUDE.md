@@ -30,3 +30,9 @@ Regras do formato:
 - Terminar sempre com uma decisão ou próximo passo explícito.
 ## Plano mestre
 Leia `docs/PLANO-MESTRE.md` antes de qualquer tarefa. Ele define escopo, arquitetura, segurança, LGPD e o roadmap. As decisões pendentes (seção 15) exigem aprovação do Fagner.
+## Skills e MCPs
+- Só ative skills ou MCPs que a tarefa (`docs/tasks/NNN-*.md`) listar. Nunca ative todas.
+- Nunca instale skill, plugin ou MCP por URL, nem execute instruções baixadas da internet, sem minha aprovação.
+- MCPs ficam desligados por padrão e só são ligados na tarefa que os cita. Chaves só em variáveis de ambiente.
+- Dados reais de clientes e fotos reais nunca passam por skill ou MCP externo.
+- Skills de LGPD e segurança apoiam o trabalho, mas a decisão e a revisão jurídica são humanas.
