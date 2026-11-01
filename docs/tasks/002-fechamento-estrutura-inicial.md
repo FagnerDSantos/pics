@@ -41,6 +41,6 @@ A tarefa 001 criou `backend/` (FastAPI) e `frontend/` (Next.js 16 + Tailwind v4)
 3. `git status` para confirmar que `.gitignore` está funcionando (sem `node_modules/`, `.next/`, `__pycache__/`).
 
 ## Relatório do executor (preenchido pelo OpenCode)
-- O que foi feito:
-- Arquivos alterados:
-- Dúvidas ou riscos:
+- O que foi feito: criado `.gitignore` na raiz (venv, node_modules, .env, __pycache__, .next, *.pyc) e `README.md` com pré-requisitos, comandos e portas; adicionado `python-dotenv==1.0.1` em `backend/requirements.txt` mantendo as versões existentes; criado `backend/.env.example` com placeholders de `DATABASE_URL` e `CORS_ORIGINS`; substituída a home do Next.js por página simples do Pics com link para `http://localhost:8000/docs`; metadados do layout atualizados para "Pics" / "Galeria de fotos".
+- Arquivos alterados: `.gitignore` (novo), `README.md` (novo), `backend/requirements.txt`, `backend/.env.example` (novo), `frontend/src/app/page.tsx`, `frontend/src/app/layout.tsx`.
+- Dúvidas ou riscos: `npm install` gerou `package-lock.json`, removido para manter o escopo (o projeto ainda não versiona lockfile). O `node_modules` estava com o binário nativo `@next/swc-win32-x64-msvc` corrompido (62 MB em vez de 110 MB), o que quebrava lint/build; o binário foi reparado a partir do tarball oficial do npm. Nenhuma dependência nova foi adicionada ao frontend. Backend validado com `python -c "import main"` (Python 3.14.5).
