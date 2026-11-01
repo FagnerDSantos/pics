@@ -1,5 +1,7 @@
 # Python
 venv/
+*.venv
+.venv/
 __pycache__/
 *.pyc
 
@@ -8,6 +10,18 @@ node_modules/
 
 # Next.js
 .next/
+dist/
+
+# Testes e ferramentas
+coverage/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Logs
+*.log
 
 # Ambiente
 .env
+.env.*
+!.env.example

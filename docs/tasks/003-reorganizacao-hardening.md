@@ -52,6 +52,6 @@ Estado atual: `backend/main.py` concentra tudo; frontend usa apenas `src/app` e 
 4. `git status` para confirmar que `__pycache__/`, `.pytest_cache/`, `.mypy_cache/` e `.ruff_cache/` estão ignorados.
 
 ## Relatório do executor (preenchido pelo OpenCode)
-- O que foi feito:
-- Arquivos alterados:
-- Dúvidas ou riscos:
+- O que foi feito: backend reorganizado no pacote `app/` (`main.py`, `api/v1/router.py`, `api/v1/routes/health.py`, `core/config.py` e `middleware/security_headers.py`), com configuração via `.env` (`CORS_ORIGINS`, `APP_VERSION`), CORS explícito e headers de segurança; criados `pyproject.toml` (ruff/mypy/pytest), `requirements-dev.txt` fixado e testes de contrato e headers; frontend ganhou as camadas `components/`, `lib/`, `hooks/`, `types/` e `services/` e README apontando para a raiz; removidos assets de boilerplate e `backend/main.py`; raiz com `.editorconfig`, `.gitignore` ampliado, `infra/docker-compose.yml` e CI do GitHub Actions.
+- Arquivos alterados: `backend/app/**` (novo), `backend/tests/**` (novo), `backend/pyproject.toml` (novo), `backend/requirements-dev.txt` (novo), `backend/main.py` (removido), `backend/.env.example`, `frontend/src/{components,lib,hooks,types,services}/.gitkeep` (novos), `frontend/README.md`, `frontend/public/{file,globe,next,vercel,window}.svg` (removidos), `.editorconfig` (novo), `.gitignore`, `README.md`, `infra/docker-compose.yml` (novo), `.github/workflows/ci.yml` (novo).
+- Dúvidas ou riscos: validações executadas em Python 3.12.5 (venv local) porque o `pydantic==2.10.4` fixado na tarefa 001 não possui wheel para Python 3.14 e falha ao compilar; recomendo atualizar `pydantic`/`fastapi` em tarefa própria. O CI usa `npm install` (não `npm ci`) porque o repositório ainda não versiona `package-lock.json`. Nenhum banco foi iniciado.
