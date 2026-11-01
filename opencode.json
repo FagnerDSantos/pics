@@ -1,0 +1,30 @@
+﻿{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/deepseek-v4.1-flash-free",
+  "small_model": "opencode/nemotron-3.5-lightning-free",
+  "agent": {
+    "plan": { "model": "opencode/glm-5.3-flash-free" },
+    "build": { "model": "opencode/deepseek-v4.1-flash-free", "temperature": 0.2 },
+    "explore": { "model": "opencode/nemotron-3.5-lightning-free" }
+  },
+  "permission": {
+    "read": {
+      "*": "allow",
+      "C:\\Users\\LEO\\.config\\opencode\\**": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny"
+    }
+  },
+  "mcp": {
+    "shadcn-ui": {
+      "type": "local",
+      "command": ["npx", "-y", "shadcn-ui-mcp-server"],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp"],
+      "enabled": true
+    }
+  }
+}
