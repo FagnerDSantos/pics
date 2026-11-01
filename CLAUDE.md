@@ -28,3 +28,5 @@ Regras do formato:
 - Usar tabelas para checklists e comparações.
 - Ser direto; sem preâmbulo e sem repetir o pedido.
 - Terminar sempre com uma decisão ou próximo passo explícito.
+## Plano mestre
+Leia `docs/PLANO-MESTRE.md` antes de qualquer tarefa. Ele define escopo, arquitetura, segurança, LGPD e o roadmap. As decisões pendentes (seção 15) exigem aprovação do Fagner.
