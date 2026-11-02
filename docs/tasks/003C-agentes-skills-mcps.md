@@ -4,18 +4,18 @@
 Alinhar a configuração do OpenCode às regras do `CLAUDE.md` e do plano mestre: corrigir o formato das skills, desligar MCPs por padrão, restringir permissões perigosas e criar o agente `security-reviewer` somente leitura com modelo de outra família.
 
 ## Contexto
-Diagnóstico atual: 5 skills em `.opencode/skills/*.md` não são carregadas (o formato exigido é `.opencode/skills/<nome>/SKILL.md`); `shadcn-ui` e `chrome-devtools` estão `enabled: true` (`opencode.json:22,27`) contrariando `CLAUDE.md:36`; todos os agentes herdam permissões amplas; não existe revisor de segurança (S-26). O `gh` não está instalado, então o remoto Git fica fora desta tarefa.
+Diagnóstico inicial: 5 skills em `.opencode/skills/*.md` não eram carregadas (o formato exigido é `.opencode/skills/<nome>/SKILL.md`); `shadcn-ui` e `chrome-devtools` estavam `enabled: true` contrariando `CLAUDE.md:36`; os agentes herdavam permissões amplas; não existia revisor de segurança (S-26). O `gh` não está instalado, então o remoto Git fica fora desta tarefa.
 
 ## Critérios de aceite
-- [ ] Mover as 5 skills para `.opencode/skills/<nome>/SKILL.md` via `git mv`, mantendo o frontmatter e o nome igual ao da pasta: `agent-superpowers`, `cloudflare-security-audit`, `gsap-animation-guidelines`, `lgpd-brazil-compliance`, `vercel-web-interface-guidelines`.
-- [ ] Em `opencode.json`, definir `mcp.shadcn-ui.enabled = false` e `mcp.chrome-devtools.enabled = false`.
-- [ ] Em `opencode.json`, adicionar `permission.skill` com `"*": "ask"` para exigir aprovação ao carregar skill.
-- [ ] Em `opencode.json`, ajustar `permission.read` para manter `.env` e `.env.*` em `deny`, mas permitir explicitamente `*.env.example` (regra de exceção por último).
-- [ ] Em `opencode.json`, restringir o agente `build`: `edit: allow`, e em `bash` manter `"*": "allow"` com regras finais `git push*: deny`, `git commit*: deny`, `git reset --hard*: deny`, `git clean*: deny` e `Remove-Item*: ask`.
-- [ ] Em `opencode.json`, garantir `permission.edit: deny` para `plan`, `explore` e `general`.
-- [ ] Criar `.opencode/agent/security-reviewer.md` (`mode: subagent`, `model: opencode/glm-5.3-flash-free`, `temperature: 0.1`) com `edit: deny` e `bash: deny`; o prompt deve instruir revisão somente leitura de `git diff` contra os itens S-xx do plano mestre, apontando riscos e referenciando `arquivo:linha`, sem alterar código.
-- [ ] Atualizar `CLAUDE.md` com uma seção curta "Agentes" listando `build`, `plan`, `explore`, `security-reviewer` e quando usar cada um.
-- [ ] Validações: `opencode agent list` mostra `security-reviewer`; `opencode mcp list` mostra os dois MCPs desligados; `opencode run --agent build "Responda apenas OK"` inicia sem erro de configuração; `Get-ChildItem .opencode/skills/*/SKILL.md` retorna 5 arquivos.
+- [x] Mover as 5 skills para `.opencode/skills/<nome>/SKILL.md` via `git mv`, mantendo o frontmatter e o nome igual ao da pasta: `agent-superpowers`, `cloudflare-security-audit`, `gsap-animation-guidelines`, `lgpd-brazil-compliance`, `vercel-web-interface-guidelines`.
+- [x] Em `opencode.json`, definir `mcp.shadcn-ui.enabled = false` e `mcp.chrome-devtools.enabled = false`; usar o CLI oficial `shadcn` e desativar estatísticas do Chrome DevTools.
+- [x] Em `opencode.json`, adicionar `permission.skill` com `"*": "ask"` para exigir aprovação ao carregar skill.
+- [x] Em `opencode.json`, ajustar `permission.read` para manter `.env` e `.env.*` em `deny`, permitir explicitamente `*.env.example` (regra de exceção por último) e não abrir leitura ampla da configuração global do OpenCode.
+- [x] Em `opencode.json`, restringir o agente `build`: `edit: allow`, e em `bash` manter `"*": "allow"` com regras finais `git push*: deny`, `git commit*: deny`, `git reset --hard*: deny`, `git clean*: deny` e `Remove-Item*: ask`.
+- [x] Em `opencode.json`, garantir `permission.edit: deny` para `plan`, `explore` e `general`.
+- [x] Criar `.opencode/agent/security-reviewer.md` (`mode: subagent`, `model: opencode/glm-5.3-flash-free`, `temperature: 0.1`) com `edit: deny`, `bash: deny` e `task: deny`; o prompt instrui revisão somente leitura dos itens S-xx com referências `arquivo:linha`.
+- [x] Atualizar `CLAUDE.md` com uma seção curta "Agentes" listando `build`, `plan`, `explore`, `security-reviewer` e quando usar cada um.
+- [x] Validar `opencode agent list`, `opencode mcp list`, execução sintética de `build` e cinco arquivos `SKILL.md`.
 
 ## Arquivos que podem ser alterados
 - `.opencode/skills/**`
@@ -41,10 +41,10 @@ Diagnóstico atual: 5 skills em `.opencode/skills/*.md` não são carregadas (o 
 2. `opencode agent list` → `security-reviewer (subagent)` presente.
 3. `opencode mcp list` → `shadcn-ui` e `chrome-devtools` desligados.
 4. `opencode run --agent build "Responda apenas OK"` → executa sem erro de config.
-5. `git status` → apenas os arquivos permitidos alterados.
+5. Revisar `git status` e confirmar que o commit inclui somente os arquivos da 003C, preservando alterações preexistentes fora da tarefa.
 
 ## Relatório do executor (preenchido pelo OpenCode)
-- O que foi feito: as cinco skills foram movidas para `.opencode/skills/<nome>/SKILL.md`; existe o agente `security-reviewer`; `CLAUDE.md` lista os agentes. A auditoria posterior encontrou divergências que impedem marcar a tarefa como concluída: os dois MCPs estão habilitados; `permission.skill` e as regras planejadas de `build` não aparecem em `opencode.json`; `*.env.example` não tem exceção final; as negações de edição não estão declaradas no escopo do projeto; `security-reviewer` está em `mode: all`, embora o critério peça `subagent`.
-- Arquivos da tarefa: `.opencode/skills/agent-superpowers/SKILL.md`, `.opencode/skills/cloudflare-security-audit/SKILL.md`, `.opencode/skills/gsap-animation-guidelines/SKILL.md`, `.opencode/skills/lgpd-brazil-compliance/SKILL.md`, `.opencode/skills/vercel-web-interface-guidelines/SKILL.md`, `.opencode/agent/security-reviewer.md`, `opencode.json`, `CLAUDE.md`.
-- Validações desta auditoria: diretório contém cinco skills com nomes/frontmatter correspondentes; `opencode agent list` carrega `security-reviewer` e mostra `build` com permissão ampla herdada (`* allow`). `opencode mcp list` não foi executado porque os MCPs estão habilitados e usam `npx -y`, que pode baixar/executar pacotes. A listagem anterior que dizia estarem desligados não corresponde ao `opencode.json` atual. Origem confirmada por documentação: shadcn oficial usa o CLI `shadcn`; o pacote configurado `shadcn-ui-mcp-server` é comunitário; `chrome-devtools-mcp` é o pacote oficial do Chrome DevTools.
-- Pendências/riscos: não ativar os MCPs até corrigir a configuração e aprovar a origem/pacote; rever permissões de build e privacidade; decidir se `security-reviewer` deve ser subagent ou também agente primário. Esta tarefa continua pendente de correção.
+- O que foi feito: skills movidas e carregadas; configuração ajustada com MCPs desligados por padrão; permissões de build, leitura, skills e agentes explicitadas; leitura ampla de `~/.config/opencode/` removida; `security-reviewer` em modo `subagent` sem edição, Bash ou delegação; seção de agentes documentada em `CLAUDE.md`.
+- Arquivos alterados: cinco `.opencode/skills/*/SKILL.md`, `.opencode/agent/security-reviewer.md`, `opencode.json`, `CLAUDE.md`, `docs/tasks/003C-agentes-skills-mcps.md`, `docs/reviews/003C-agentes-skills-mcps.md`, `docs/PLANO-MESTRE.md`.
+- Validações: `opencode agent list` carregou `security-reviewer (subagent)` e mostrou as regras específicas do `build`; `opencode mcp list` mostrou os dois servidores desligados; `opencode run --agent build "Responda apenas OK"` respondeu `OK` usando modelo gratuito com prompt fictício e `OPENCODE_PURE=1` para não executar plugins locais pendentes; `Get-ChildItem .opencode/skills/*/SKILL.md` listou 5 arquivos; `opencode run --agent plan` listou as 5 skills do projeto.
+- Dúvidas ou riscos: a conectividade real dos MCPs não foi testada porque devem permanecer desligados por padrão; o Chrome DevTools só deve ser ativado em tarefa que o exija. A escolha de `shadcn@latest mcp` segue a documentação oficial e ainda não instala nem inicia o pacote.

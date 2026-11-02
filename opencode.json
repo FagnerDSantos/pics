@@ -3,28 +3,50 @@
   "model": "opencode/deepseek-v4.1-flash-free",
   "small_model": "opencode/nemotron-3.5-lightning-free",
   "agent": {
-    "plan": { "model": "opencode/glm-5.3-flash-free" },
-    "build": { "model": "opencode/deepseek-v4.1-flash-free", "temperature": 0.2 },
-    "explore": { "model": "opencode/nemotron-3.5-lightning-free" }
+    "plan": {
+      "model": "opencode/glm-5.3-flash-free",
+      "permission": { "edit": "deny" }
+    },
+    "build": {
+      "model": "opencode/deepseek-v4.1-flash-free",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "allow",
+          "git push*": "deny",
+          "git commit*": "deny",
+          "git reset --hard*": "deny",
+          "git clean*": "deny",
+          "Remove-Item*": "ask"
+        }
+      }
+    },
+    "explore": {
+      "model": "opencode/nemotron-3.5-lightning-free",
+      "permission": { "edit": "deny" }
+    },
+    "general": { "permission": { "edit": "deny" } }
   },
   "permission": {
     "read": {
       "*": "allow",
-      "C:\\Users\\LEO\\.config\\opencode\\**": "allow",
       "*.env": "deny",
-      "*.env.*": "deny"
-    }
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "skill": { "*": "ask" }
   },
   "mcp": {
     "shadcn-ui": {
       "type": "local",
-      "command": ["npx", "-y", "shadcn-ui-mcp-server"],
-      "enabled": true
+      "command": ["npx", "-y", "shadcn@latest", "mcp"],
+      "enabled": false
     },
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp"],
-      "enabled": true
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--no-usage-statistics"],
+      "enabled": false
     }
   }
 }

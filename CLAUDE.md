@@ -36,3 +36,9 @@ Leia `docs/PLANO-MESTRE.md` antes de qualquer tarefa. Ele define escopo, arquite
 - MCPs ficam desligados por padrão e só são ligados na tarefa que os cita. Chaves só em variáveis de ambiente.
 - Dados reais de clientes e fotos reais nunca passam por skill ou MCP externo.
 - Skills de LGPD e segurança apoiam o trabalho, mas a decisão e a revisão jurídica são humanas.
+
+## Agentes
+- `build`: executa a tarefa (código, testes, docs). Use para implementar.
+- `plan`: analisa e propõe plano sem editar arquivos. Use antes de decidir.
+- `explore`: busca e lê o código, somente leitura. Use para localizar arquivos e entender o projeto.
+- `security-reviewer`: revisa o `git diff` contra os itens S-xx do plano mestre, somente leitura. Use na revisão de segurança (S-26).

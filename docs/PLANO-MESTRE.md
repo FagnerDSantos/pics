@@ -427,7 +427,7 @@ Sem autenticação/autorização; sem cabeçalhos de segurança; sem rate limiti
 | 001–002 | Etapas anteriores (ver `docs/tasks/`) | concluídas |
 | 003 | Backend: reorganização + hardening base | concluída (inclui hardening 003B) |
 | 003B | Hardening restante e atualização de pins | concluída |
-| 003C | Agentes, skills, MCPs e permissões | pendente de correção: configuração não atende os critérios de aceite |
+| 003C | Agentes, skills, MCPs e permissões | concluída e validada |
 | 004 | Frontend e raiz | pendente |
 | 005 | PostgreSQL + SQLAlchemy + Alembic | pendente |
 | 006–009 | Identidade e acesso | pendente |
