@@ -1,8 +1,9 @@
-# PLANO MESTRE — Pics (entrega de fotos e montagem de álbuns)
+# PLANO MESTRE v2 — Pics (plataforma para fotógrafos)
 
 > Documento de referência para pessoas e agentes de IA. Leia inteiro antes de qualquer tarefa.
-> Dono do produto e decisor final: **Fagner**. Versão 1 — 01/11/2026.
-> Este arquivo é a fonte da verdade de escopo, arquitetura e regras. Ao concluir uma tarefa, atualize a seção 18 (Status).
+> Dono do produto e decisor final: **Fagner**. Versão 2 — 02/11/2026. Substitui a versão 1.
+> Fonte da verdade de escopo, arquitetura e regras. Ao concluir uma tarefa, atualize a seção 20 (Status).
+> **Mudança principal da v1 para a v2:** o produto não é o sistema de um único estúdio. É uma **plataforma (SaaS) oferecida a vários fotógrafos**, cada um com seu site, seus clientes, suas galerias e seu financeiro, em três blocos de entrega.
 
 ---
 
@@ -10,181 +11,213 @@
 
 1. Leia este plano e o `CLAUDE.md` antes de agir.
 2. Trabalhe **uma tarefa por vez**, a partir de `docs/tasks/NNN-nome.md` (modelo em `docs/tasks/_modelo.md`).
-3. Não saia do escopo da tarefa. Se achar algo fora do escopo, registre em `docs/reviews/` como observação e **não corrija por conta própria**.
-4. Tudo que estiver marcado **REQUER APROVAÇÃO** (seção 15 e regras do `CLAUDE.md`) só avança com aprovação explícita do Fagner.
-5. Use sempre **dados fictícios**. Nunca coloque fotos reais, dados de clientes, chaves ou `.env` em prompts, logs, testes ou commits. Modelos gratuitos podem coletar o que recebem.
-6. Faça `git commit` antes e depois de cada tarefa. No máximo 2 rodadas de correção por tarefa; depois pare e consulte.
-7. Antes de instalar qualquer pacote, confirme que o nome existe e é o oficial (modelos às vezes inventam nomes parecidos). Novas dependências **REQUEREM APROVAÇÃO**.
+3. Não saia do escopo da tarefa. O que estiver fora do escopo vai para `docs/reviews/` como observação, sem correção por conta própria.
+4. Tudo marcado **REQUER APROVAÇÃO** (seção 17 e regras do `CLAUDE.md`) só avança com aprovação explícita do Fagner.
+5. Use **dados fictícios**. Nunca coloque fotos reais, dados de clientes, chaves ou `.env` em prompts, logs, testes ou commits. Modelos gratuitos podem coletar o que recebem.
+6. `git commit` antes e depois de cada tarefa. No máximo 2 rodadas de correção; depois pare e consulte.
+7. Antes de instalar qualquer pacote, confirme que o nome existe e é o oficial. Novas dependências **REQUEREM APROVAÇÃO**.
 8. Nunca use o modo de aprovação automática (`--auto`).
+9. **Toda tabela de negócio tem `studio_id`** e toda consulta respeita o estúdio (seção 6). Isso nunca é opcional.
+10. Skills e MCPs: só os que a tarefa listar (seção 15).
 
 ---
 
 ## 1. Visão do produto
 
-Uma empresa de fotografia terá:
+Uma plataforma web para fotógrafos e estúdios venderem, entregarem e gerenciarem seu trabalho. Cada fotógrafo (um **estúdio**) tem seu espaço, sua marca, seus clientes e suas galerias.
 
-- **Site institucional** (portfólio, serviços, contato) com visual premium.
-- **Plataforma** por trás, para entrega de fotos e montagem de álbuns:
-  - O fotógrafo (admin) sobe as fotos de um trabalho.
-  - O cliente entra, vê **prévias de baixa qualidade** por **3 dias** e escolhe as fotos.
-  - A seleção vira um **álbum**: fotos em ordem, formato/tamanho definidos e uma **ilustração visual** do layout, para quem monta o álbum ter facilidade.
-  - Após o **pagamento**, o cliente recebe os arquivos em alta qualidade.
+### Os três blocos (ordem de entrega definida pelo Fagner)
+
+| Bloco | Conteúdo | Meta |
+|---|---|---|
+| **B1 — Entrega de fotos** | Galerias de prova e de entrega, favoritos, seleção, pagamento, download dos originais, e-mails automáticos, planos e cotas | **MVP**: ser usado por 3 a 5 fotógrafos reais |
+| **B2 — Site e gestão do estúdio** | Site personalizado por fotógrafo, CRM, agenda e agendamento online, contratos, briefing, e-mails/WhatsApp, financeiro, marketing | Construído a partir do que o beta pedir |
+| **B3 — Álbuns** | Seleção ordenada, tamanho, ilustração do layout, prova ao cliente e exportação para quem monta o álbum | Possível diferencial; pode subir de prioridade conforme o beta |
 
 ### Restrições do projeto
 
-- **Custo baixo**: usar camadas gratuitas e serviços baratos; planos gratuitos de IA só com dados fictícios.
-- **Segurança forte** desde o início (seção 11).
-- **LGPD** como requisito de projeto, não como acabamento (seção 12).
-- **Visual extraordinário** no site e nas áreas logadas (seção 14, fase 5).
-- Desenvolvimento assistido por IA (OpenCode com DeepSeek e outros, Claude Code), portanto tarefas pequenas, revisáveis e com critérios de aceite claros.
+- **Custo baixo**: infraestrutura barata e sem custo de saída de dados; IA gratuita só com dados fictícios.
+- **Segurança forte**, com **isolamento entre estúdios** como risco nº 1 (seção 13).
+- **LGPD desde o projeto**; o fotógrafo é o controlador dos dados dos clientes dele e a plataforma é a operadora (seção 14).
+- **Visual extraordinário** no site e nas áreas logadas (B2).
+- Desenvolvimento assistido por IA: tarefas pequenas, revisáveis e com critérios de aceite claros.
 
 ---
 
-## 2. Perfis e fluxo principal
+## 2. Referência competitiva: Davions (consultado em 02/11/2026)
 
-| Perfil | Papel no sistema |
+> Referência de **funcionalidades e preços**. Não copiar textos, layout, identidade visual nem código. Confirmar os dados no site deles antes de decidir preços.
+
+### Funcionalidades (todos os planos, salvo indicação)
+
+Kanban; CRM; cadastro de clientes; agendamento online; contratos automáticos; questionários personalizados; e-mails e WhatsApp automatizados; galeria de provas e de entrega final; integração com Lightroom; site profissional com SEO e IA; financeiro.
+**"Em breve" no site deles:** diagramador de álbuns (limites mensais por plano), blog com IA, posts de redes sociais com IA, loja integrada, e-mail marketing.
+
+### Planos e preços
+
+| Plano | Preço/mês | Armazenamento | Diferenças |
+|---|---|---|---|
+| Standard | R$ 149 (de R$ 199) | 100 GB | Sem equipe e sem multi agenda |
+| Pro | R$ 299 (de R$ 399) | 500 GB | Até 5 membros de equipe |
+| Ultimate | R$ 449 (de R$ 599) | 1.000 GB | Multi agenda, equipe ilimitada |
+
+Teste grátis de 30 dias, sem cartão. Agendamentos ilimitados em todos. Diagramador de álbuns previsto como 3, 12 e ilimitado por mês.
+
+### O que isso ensina
+
+- **Armazenamento é o eixo dos planos** e o maior custo variável (seção 11).
+- A equipe com permissões (membros) é recurso de plano: o modelo de papéis precisa suportar isso.
+- O diagramador de álbuns já está no radar deles. O diferencial do B3 precisa ser definido (ver seção 12).
+- Trial de 30 dias sem cartão atrai abuso: precisa de cota reduzida e limpeza (seção 11).
+
+---
+
+## 3. Atores e fluxo principal do B1
+
+| Ator | Descrição |
 |---|---|
-| Visitante | Navega no site institucional, envia contato |
-| Cliente (`client`) | Acessa a galeria, favorita e seleciona fotos, aprova prova do álbum, paga, baixa |
-| Montador (`assembler`) | Organiza o álbum a partir da seleção do cliente e exporta para produção |
-| Admin (`admin`) | Gerencia clientes, galerias, prazos, álbuns, pedidos e usuários |
+| Admin da plataforma (`platform_admin`) | Fagner e equipe da plataforma. Gerencia estúdios, planos e suporte |
+| Dono do estúdio (`studio_owner`) | O fotógrafo. Gerencia tudo do próprio estúdio |
+| Membro do estúdio (`studio_member`) | Equipe, com permissões configuráveis |
+| Diagramador (`assembler`) | Monta álbuns (interno ou convidado de fora, ver B3) |
+| Cliente final (`client`) | Cliente do fotógrafo; vê galerias, seleciona, paga e baixa |
+| Visitante | Navega no site do estúdio |
 
-**Fluxo:**
+**Fluxo do B1:**
 
-1. Admin cria o cliente e a galeria, faz upload em lote. O sistema gera as prévias.
-2. Admin publica a galeria. O cliente recebe o acesso por e-mail. Contagem de 3 dias começa.
-3. Cliente vê as prévias, favorita e seleciona as fotos do álbum.
-4. A seleção alimenta o álbum. O montador ajusta a ordem, o tamanho e as lâminas, e gera a ilustração.
-5. Cliente aprova a prova do álbum.
-6. Cliente paga (Pix).
-7. O sistema libera os originais (links assinados e curtos) e registra os downloads.
-8. Prévias expiram e são apagadas. Originais seguem a política de retenção (decisão D-07).
-
----
-
-## 3. Requisitos funcionais
-
-**Admin**
-- RF-01 Cadastrar e gerenciar clientes e usuários internos.
-- RF-02 Criar galerias; upload em lote de fotos (JPEG/PNG), com progresso e retomada.
-- RF-03 Publicar e despublicar galeria; prazo das prévias padrão de 3 dias, configurável e prorrogável (com registro).
-- RF-04 Ver favoritas e seleção do cliente por galeria.
-- RF-05 Gerenciar tamanhos de álbum (dimensões, mínimo e máximo de páginas, preço).
-- RF-06 Acompanhar pedidos e pagamentos; liberar entrega.
-
-**Cliente**
-- RF-07 Acessar a galeria por link/credencial segura.
-- RF-08 Ver prévias (com marca d'água) em grade e em tela cheia, no celular e no desktop.
-- RF-09 Favoritar fotos e montar a seleção do álbum.
-- RF-10 Aprovar ou pedir ajustes na prova do álbum.
-- RF-11 Pagar via Pix e acompanhar o status.
-- RF-12 Baixar os originais após a confirmação do pagamento.
-- RF-13 Solicitar acesso, correção ou exclusão dos próprios dados (LGPD).
-
-**Montador**
-- RF-14 Ver a seleção do cliente já ordenada (sugestão pelo horário da foto).
-- RF-15 Reordenar por arrastar e soltar; organizar em lâminas.
-- RF-16 Escolher o tamanho do álbum e ver a ilustração do layout.
-- RF-17 Exportar o pacote para produção (ZIP numerado + manifesto CSV/PDF).
-
-**Site**
-- RF-18 Home, portfólio, serviços, sobre, contato.
-- RF-19 Política de privacidade e termos de uso.
-- RF-20 Formulário de contato protegido contra robôs.
+1. O fotógrafo cria o cliente e a galeria e faz upload em lote. O sistema gera as prévias.
+2. Publica a galeria. O cliente recebe o acesso por e-mail. O prazo das prévias começa (padrão 3 dias, configurável).
+3. O cliente vê as prévias, favorita e seleciona.
+4. O cliente paga (Pix) conforme o pacote/valor definido pelo fotógrafo.
+5. O sistema libera os originais por links assinados curtos e registra os downloads.
+6. As prévias expiram e são apagadas. Os originais seguem a política de retenção do plano.
 
 ---
 
-## 4. Requisitos não funcionais
+## 4. Requisitos funcionais
 
-- **Segurança**: seção 11. **LGPD**: seção 12.
-- **Desempenho**: upload direto ao storage (não passa pelo servidor); processamento de imagem fora da requisição; prévias leves; paginação e miniaturas.
-- **Mobile first**: o cliente escolhe fotos pelo celular.
+### B1 — Entrega de fotos
+- RF-01 Cadastro e login do fotógrafo; criação do estúdio; convite de membros (conforme plano).
+- RF-02 Cadastro de clientes do estúdio.
+- RF-03 Criar galerias; upload em lote (JPEG/PNG) com progresso e retomada.
+- RF-04 Publicar e despublicar; prazo das prévias configurável por galeria (padrão 3 dias) e prorrogável, com registro.
+- RF-05 Galeria do cliente com a **marca do estúdio** (logo e cores), grade e tela cheia, mobile first.
+- RF-06 Favoritar, selecionar e comentar fotos.
+- RF-07 Pagamento do cliente final via Pix; acompanhamento de status.
+- RF-08 Download dos originais após confirmação; registro de downloads.
+- RF-09 E-mails automáticos (acesso, lembrete de prazo, pagamento, entrega).
+- RF-10 Planos, cotas e cobrança do estúdio (assinatura, trial).
+- RF-11 Painel do fotógrafo: uso de armazenamento, galerias, pedidos.
+- RF-12 Direitos do titular (LGPD): pedido de acesso, correção e exclusão.
+
+### B2 — Site e gestão do estúdio (épicos; detalhar após o beta)
+- RF-13 Site do estúdio: páginas, tema, portfólio, contato, blog; subdomínio e depois domínio próprio; SEO.
+- RF-14 CRM e Kanban de projetos.
+- RF-15 Agenda e agendamento online.
+- RF-16 Contratos gerados a partir do pacote e assinatura eletrônica.
+- RF-17 Briefing e questionários personalizados.
+- RF-18 E-mails e (avaliar) WhatsApp automatizados.
+- RF-19 Financeiro: receitas, despesas, relatórios.
+- RF-20 Marketing (posts, campanhas) — avaliar depois.
+
+### B3 — Álbuns
+- RF-21 Seleção do cliente ordenada (sugestão pelo horário da foto).
+- RF-22 Montagem: reordenar por arrastar e soltar, lâminas, tamanho do álbum.
+- RF-23 Ilustração do layout das lâminas.
+- RF-24 Prova ao cliente e aprovação.
+- RF-25 Exportação para produção (ZIP numerado + manifesto).
+- RF-26 Diagramador convidado (acesso restrito a um álbum).
+
+---
+
+## 5. Requisitos não funcionais
+
+- **Segurança**: seção 13. **LGPD**: seção 14.
+- **Isolamento entre estúdios**: nenhum estúdio acessa dado, foto ou arquivo de outro.
+- **Desempenho**: upload direto ao storage; processamento em worker; prévias leves; miniaturas; paginação.
+- **Mobile first**: o cliente final escolhe fotos pelo celular.
 - **Acessibilidade**: WCAG AA (contraste, teclado, `prefers-reduced-motion`).
-- **Idioma**: pt-BR. Datas em America/Fortaleza ou configurável; armazenar em UTC.
-- **Dinheiro**: sempre em centavos (inteiro), nunca float.
-- **Observabilidade**: logs estruturados com id de requisição, sem dados pessoais nem segredos.
-- **Custo**: monitorar armazenamento e tráfego de saída; preferir storage sem cobrança de saída.
+- **Idioma**: pt-BR. Datas em UTC no banco.
+- **Dinheiro**: sempre em centavos (inteiro).
+- **Observabilidade**: logs estruturados com `request_id` e `studio_id`, sem dados pessoais nem segredos.
+- **Custo**: medir armazenamento por estúdio e impor cotas.
 
 ---
 
-## 5. Arquitetura
+## 6. Arquitetura (multi-tenant)
 
 ```
-Navegador ──► Frontend (Next 16) ──► API (FastAPI) ──► PostgreSQL
+Navegador ──► Frontend (Next 16) ──► API (FastAPI) ──► PostgreSQL (RLS)
                                         │
-                                        ├──► Storage S3-compatível PRIVADO (originais, prévias)
+                                        ├──► Storage S3-compatível PRIVADO (prefixo por estúdio)
                                         ├──► Worker de imagens (derivados + marca d'água)
                                         ├──► E-mail transacional
-                                        └──► Provedor de Pix (webhook assinado)
+                                        └──► Provedor de Pix com subcontas/split (webhook assinado)
 ```
 
 ### Stack
 
 | Camada | Escolha |
 |---|---|
-| Backend | Python 3.12 ou 3.13 (evitar 3.14 por compatibilidade), FastAPI, Pydantic v2, pydantic-settings |
+| Backend | Python 3.12 ou 3.13, FastAPI, Pydantic v2, pydantic-settings |
 | Banco | PostgreSQL, SQLAlchemy 2, Alembic |
-| Auth | Sessão opaca no servidor + cookie `HttpOnly`; senha com argon2id; 2FA TOTP para admin |
+| Auth | Sessão opaca no servidor + cookie `HttpOnly`; argon2id; 2FA TOTP para dono/admin |
 | Imagens | Pillow (ou pyvips), em worker |
-| Storage | S3-compatível privado (Cloudflare R2 ou Backblaze B2; MinIO no desenvolvimento) via boto3 e URLs assinadas |
-| Tarefas | Começar com rotina agendada e fila simples; evoluir para fila dedicada se necessário |
+| Storage | S3-compatível privado (Cloudflare R2 ou Backblaze B2; MinIO no dev) via boto3 e URLs assinadas |
 | Frontend | Next 16, TypeScript estrito, Tailwind; shadcn/ui **REQUER APROVAÇÃO** |
 | Qualidade | ruff, mypy, pytest, ESLint, `tsc`, CI no GitHub Actions |
 | Infra local | Docker Compose: PostgreSQL, MinIO, Mailpit |
 
-### Decisões a registrar em `docs/adr/` (status: proposta até aprovação)
+### Regras de multi-tenancy (obrigatórias)
 
-- ADR-001 Frontend e backend separados (Next + FastAPI).
-- ADR-002 PostgreSQL + SQLAlchemy 2 + Alembic.
-- ADR-003 Sessão opaca no servidor com cookie `HttpOnly` (revogável), em vez de JWT.
-- ADR-004 Storage privado com URLs assinadas; original nunca público.
-- ADR-005 Processamento de imagem em worker com limites de tamanho.
-- ADR-006 Dinheiro em centavos; webhooks idempotentes.
+1. **Estúdio = tenant.** Toda tabela de negócio tem `studio_id NOT NULL`, indexado.
+2. **Chaves estrangeiras compostas** incluindo `studio_id` onde fizer sentido, para impedir referência entre estúdios.
+3. **Row Level Security (RLS) no PostgreSQL** como segunda barreira: a aplicação define o estúdio da sessão (`SET LOCAL app.studio_id`), e o papel do banco usado pela API **não tem `BYPASSRLS`**. A checagem na aplicação continua obrigatória.
+4. **Testes de isolamento**: para cada rota, criar dois estúdios e provar que A não lê, altera nem apaga dados de B (401/403/404).
+5. **Storage**: chaves com prefixo `studios/{studio_id}/...`; URLs assinadas só após checar permissão e estúdio.
+6. **Acesso da equipe da plataforma** a dados de estúdios só por "acesso de suporte" restrito, justificado e registrado no `audit_log`.
+7. **Sites dos estúdios** (B2) servidos em **domínio separado** do app, para isolar cookies e limitar o impacto de XSS.
 
 ### Comunicação frontend e backend
 
-Em produção, usar o mesmo "site" (ex.: `app.dominio` e `api.dominio`) com cookie `SameSite=Lax`, `Secure`, `HttpOnly`. Ações que alteram dados exigem proteção contra CSRF (token por sessão + verificação de `Origin`). CORS com origens e métodos explícitos, vindo do `.env`, nunca `*` com credenciais.
+Em produção, mesmo "site" para app e API (ex.: `app.dominio` e `api.dominio`), cookie `SameSite=Lax`, `Secure`, `HttpOnly`. Ações que alteram dados exigem proteção contra CSRF (token por sessão + verificação de `Origin`). CORS com origens e métodos explícitos, vindos do `.env`, nunca `*` com credenciais.
+
+### ADRs a registrar em `docs/adr/` (status: proposta até aprovação)
+
+001 Frontend e backend separados · 002 PostgreSQL + SQLAlchemy 2 + Alembic · 003 Sessão opaca com cookie `HttpOnly` · 004 Storage privado com URLs assinadas · 005 Imagens em worker com limites · 006 Dinheiro em centavos e webhooks idempotentes · 007 Multi-tenancy com `studio_id` + RLS · 008 Domínio separado para sites dos estúdios.
 
 ---
 
-## 6. Estado atual (01/11/2026)
+## 7. Estado atual (02/11/2026)
 
 ```
 pics/
 ├─ backend/    main.py (tudo em 1 arquivo), requirements.txt, .env.example
-├─ frontend/   Next 16 boilerplate (src/app, public com SVGs do template)
-├─ docs/       tasks/, reviews/, _modelo.md
+├─ frontend/   Next 16 boilerplate
+├─ docs/       tasks/, reviews/, _modelo.md, PLANO-MESTRE.md (v1)
 ├─ .opencode/  skills locais
 ├─ CLAUDE.md, README.md, opencode.json, .gitignore
 ```
 
-### Problemas de organização
-
-**Backend:** `main.py` único (sem rotas, config, banco e schemas separados); sem `tests/`, `alembic/`, `pyproject.toml`; sem `requirements-dev.txt`; CORS e versão hardcoded; `python-dotenv` instalado e não usado.
-**Frontend:** boilerplate (SVGs do template, README duplicado); sem `components/`, `lib/`, `hooks/`, `types/`, `services/`; `package.json` com `name: "frontend"` e **sem lockfile versionado**.
-**Raiz:** sem `infra/docker-compose.yml`, `.editorconfig`, CI e `docs/adr/`; `.gitignore` não cobre `.venv/`, `dist/`, `coverage/`, `.pytest_cache/`, `.ruff_cache/`.
-**Ambiente:** FastAPI global (0.141.1) diverge do pin (0.115.6). **Atualizar o pin para a versão validada em teste, em vez de rebaixar a global** (pins antigos perdem correções de segurança). Usar venv. Python 3.14 é novo demais: usar 3.12 ou 3.13.
-
-### Segurança: o que já existe
-
-CORS restrito a `localhost:3000`; `.env` fora do Git; `.env.example` só com placeholders; agentes proibidos de ler `.env` (`opencode.json`); versões fixas no backend; TypeScript strict + ESLint; sem `dangerouslySetInnerHTML` nem segredos no cliente.
+**Problemas (resumo):** backend em um arquivo, sem testes/migrações/`pyproject.toml`; CORS e versão hardcoded; frontend ainda com boilerplate e sem lockfile versionado; sem `infra/`, CI, `.editorconfig`, `docs/adr/`; `.gitignore` incompleto; FastAPI global (0.141.1) diverge do pin (0.115.6): **atualizar o pin para a versão validada em teste, não rebaixar a global**; usar venv e Python 3.12 ou 3.13.
+**Segurança que já existe:** CORS restrito a `localhost:3000`; `.env` fora do Git; `.env.example` com placeholders; agentes proibidos de ler `.env`; versões fixas no backend; TypeScript strict e ESLint; sem `dangerouslySetInnerHTML`.
 
 ---
 
-## 7. Estrutura alvo
+## 8. Estrutura alvo
 
 ```
 backend/
 ├─ app/
 │  ├─ main.py
-│  ├─ api/v1/{router.py, deps.py, routes/{health,auth,galleries,photos,albums,orders,webhooks}.py}
-│  ├─ core/{config.py, security.py, logging.py}
+│  ├─ api/v1/{router.py, deps.py, routes/{health,auth,studios,clients,galleries,photos,orders,billing,webhooks,albums}.py}
+│  ├─ core/{config.py, security.py, logging.py, tenancy.py}
 │  ├─ db/{base.py, session.py}
 │  ├─ models/  schemas/  repositories/
-│  ├─ services/{storage.py, images.py, mail.py, payments.py, ...}
+│  ├─ services/{storage.py, images.py, mail.py, payments.py, quotas.py, ...}
 │  └─ workers/{process_photo.py, expire_galleries.py}
 ├─ alembic/
-├─ tests/{conftest.py, unit/, integration/}
+├─ tests/{conftest.py, unit/, integration/, isolation/}
 └─ pyproject.toml  requirements.txt  requirements-dev.txt  .env.example
 frontend/src/{app/, components/{ui,layout}, lib/, hooks/, types/, services/}
 infra/docker-compose.yml        # PostgreSQL, MinIO, Mailpit
@@ -194,332 +227,345 @@ docs/{adr/, tasks/, reviews/, lgpd/}
 
 ---
 
-## 8. Modelo de dados (proposta — validar antes da migração)
+## 9. Modelo de dados (proposta — validar antes da migração)
 
-PostgreSQL, chaves `uuid`, datas `timestamptz` (UTC), dinheiro em centavos.
+PostgreSQL, chaves `uuid`, `timestamptz` (UTC), dinheiro em centavos. **Todas as tabelas de negócio têm `studio_id`.**
+
+### Plataforma e estúdio
 
 | Tabela | Campos principais |
 |---|---|
-| `users` | id, email (citext único), password_hash (nulo p/ cliente), role (`admin`/`assembler`/`client`), full_name, is_active, totp_secret (criptografado), created_at, last_login_at |
+| `studios` | id, name, slug (único, validado, com lista de nomes reservados), status, plan_id, created_at |
+| `users` | id, email (citext único), password_hash, platform_role (`platform_admin`/nulo), full_name, is_active, totp_secret (criptografado) |
+| `studio_members` | studio_id, user_id, role (`studio_owner`/`studio_member`/`assembler`), permissions (jsonb) |
+| `plans` | id, name, price_cents, storage_gb, max_members, albums_per_month, features (jsonb), active |
+| `subscriptions` | id, studio_id, plan_id, status (`trial`/`active`/`past_due`/`canceled`), trial_ends_at, current_period_end, provider_ref |
+| `studio_usage` | studio_id, bytes_used, photos_count, updated_at |
+| `studio_branding` | studio_id, logo_key, colors (jsonb), fonts (jsonb) |
+| `studio_domains` | studio_id, hostname (único), kind (`subdomain`/`custom`), verified_at |
+| `studio_payment_accounts` | studio_id, provider, provider_account_ref, status |
 | `sessions` | id, user_id, token_hash, created_at, expires_at, revoked_at, user_agent |
-| `magic_links` | id, user_id, gallery_id (opcional), token_hash, expires_at, used_at |
-| `galleries` | id, client_id, title, event_date, status (`draft`/`published`/`expired`/`closed`), published_at, preview_expires_at, created_by |
-| `photos` | id, gallery_id, original_key, sha256, width, height, size_bytes, **taken_at** (do EXIF, lido antes de remover), sort_index, status (`uploaded`/`processing`/`ready`/`failed`) |
-| `photo_derivatives` | id, photo_id, kind (`thumb`/`preview`), storage_key, width, height |
-| `favorites` | client_id, photo_id, created_at (PK composta) |
-| `album_sizes` | id, name, width_mm, height_mm, min_pages, max_pages, price_cents, active |
-| `albums` | id, gallery_id, size_id, status (`draft`/`selecting`/`in_assembly`/`proof_sent`/`approved`/`delivered`), approved_at, notes |
-| `album_spreads` | id, album_id, position, layout |
-| `album_items` | id, album_id, spread_id, photo_id, position, crop (jsonb) |
-| `orders` | id, gallery_id, client_id, status (`pending`/`paid`/`canceled`/`refunded`), total_cents, created_at |
-| `payments` | id, order_id, provider, provider_ref (único), status, amount_cents, paid_at |
-| `webhook_events` | id, provider, event_id (único), payload_hash, received_at, processed_at |
-| `downloads` | id, user_id, gallery_id, photo_id, at, ip_hash |
-| `consents` | id, user_id, purpose (`delivery`/`portfolio`/`marketing`), is_minor_data, guardian_name, text_version, granted_at, revoked_at |
-| `data_requests` | id, user_id, type (`access`/`correction`/`deletion`), status, opened_at, closed_at |
-| `audit_log` | id, actor_id, action, entity, entity_id, at, ip_hash, meta (jsonb); **somente inserção** |
 
-Índices em chaves estrangeiras e em `(gallery_id, sort_index)`. Restrições de unicidade e checagem no banco, não só na aplicação.
+### B1 — Entrega
+
+| Tabela | Campos principais |
+|---|---|
+| `clients` | id, studio_id, name, email, phone, notes (clientes do estúdio; sem senha) |
+| `client_access` | id, studio_id, client_id, gallery_id, token_hash, pin_hash (opcional), expires_at, used_at |
+| `galleries` | id, studio_id, client_id, title, event_date, status (`draft`/`published`/`expired`/`closed`), published_at, preview_expires_at, preview_ttl_days, created_by |
+| `photos` | id, studio_id, gallery_id, original_key, sha256, width, height, size_bytes, **taken_at** (EXIF, lido antes de remover), sort_index, status (`uploaded`/`processing`/`ready`/`failed`) |
+| `photo_derivatives` | id, studio_id, photo_id, kind (`thumb`/`preview`), storage_key, width, height |
+| `favorites` | studio_id, client_id, photo_id, created_at |
+| `orders` | id, studio_id, gallery_id, client_id, status (`pending`/`paid`/`canceled`/`refunded`), total_cents |
+| `payments` | id, studio_id, order_id, provider, provider_ref (único), status, amount_cents, paid_at |
+| `webhook_events` | id, provider, event_id (único), payload_hash, received_at, processed_at |
+| `downloads` | id, studio_id, client_id, gallery_id, photo_id, at, ip_hash |
+
+### B3 — Álbuns
+
+| Tabela | Campos principais |
+|---|---|
+| `album_sizes` | id, studio_id, name, width_mm, height_mm, min_pages, max_pages, price_cents, active |
+| `albums` | id, studio_id, gallery_id, size_id, status (`draft`/`selecting`/`in_assembly`/`proof_sent`/`approved`/`delivered`), approved_at |
+| `album_spreads` | id, studio_id, album_id, position, layout |
+| `album_items` | id, studio_id, album_id, spread_id, photo_id, position, crop (jsonb) |
+
+### LGPD e auditoria
+
+| Tabela | Campos principais |
+|---|---|
+| `consents` | id, studio_id, client_id, purpose (`delivery`/`portfolio`/`marketing`), is_minor_data, guardian_name, text_version, granted_at, revoked_at |
+| `data_requests` | id, studio_id, client_id, type (`access`/`correction`/`deletion`), status, opened_at, closed_at |
+| `audit_log` | id, studio_id (nulo p/ eventos da plataforma), actor_id, action, entity, entity_id, at, ip_hash, meta (jsonb); **somente inserção** |
+
+### B2 (a detalhar após o beta)
+Páginas e tema do site, posts, agendamentos, contratos e assinaturas, questionários e respostas, lançamentos financeiros, campanhas.
+
+Índices em chaves estrangeiras e em `(studio_id, ...)`. Unicidade e checagens no banco, não só na aplicação.
 
 ---
 
-## 9. Fotos: proteção e ciclo de vida
+## 10. Fotos: proteção e ciclo de vida
 
 **Upload**
-1. O cliente do upload (admin) pede à API uma URL assinada de envio. A API valida papel, cota, tipo e tamanho.
-2. O arquivo vai direto ao bucket privado, com chave aleatória.
-3. A API "finaliza" e enfileira o processamento.
+1. O fotógrafo pede à API uma URL assinada de envio. A API valida papel, estúdio, **cota do plano**, tipo e tamanho.
+2. O arquivo vai direto ao bucket privado, em `studios/{studio_id}/...`, com chave aleatória.
+3. A API finaliza e enfileira o processamento. `studio_usage` é atualizado.
 
 **Processamento (worker)**
-- Verificar o tipo pelo conteúdo real do arquivo (não pela extensão); aceitar só JPEG e PNG.
-- Abrir com limite de pixels (proteção contra "bomba de descompressão") e tamanho máximo.
-- Ler `taken_at` do EXIF, corrigir a orientação e **remover o EXIF** dos derivados (pode conter GPS).
-- Gerar `thumb` (~400 px) e `preview` (lado maior ≤ ~1200 px, JPEG de qualidade moderada) com **marca d'água diagonal repetida** contendo o código da galeria.
-- Nomes de objeto aleatórios. Marcar a foto como `ready` ou `failed`.
+- Verificar o tipo pelo conteúdo real; aceitar só JPEG e PNG.
+- Abrir com limite de pixels (proteção contra "bomba de descompressão") e de tamanho.
+- Ler `taken_at` do EXIF, corrigir a orientação e **remover o EXIF** dos derivados (pode ter GPS).
+- Gerar `thumb` (~400 px) e `preview` (lado maior ≤ ~1200 px, JPEG de qualidade moderada) com **marca d'água diagonal repetida** (código da galeria; opcionalmente o nome do estúdio).
+- Nomes de objeto aleatórios.
 
 **Entrega**
 - O **original nunca chega ao navegador antes do pagamento confirmado**.
-- Prévias e miniaturas via URL assinada de poucos minutos, emitida só após checar permissão (cliente é dono da galeria, galeria publicada e não expirada).
+- Prévias e miniaturas via URL assinada curta, emitida só após checar: cliente com acesso à galeria, galeria publicada e não expirada, mesmo estúdio.
 - Após o pagamento, downloads por URL assinada curta, com registro em `downloads`.
 - Não usar o otimizador de imagens do Next para fotos de clientes.
 
 **Expiração**
-- `preview_expires_at = published_at + PREVIEW_TTL_DAYS` (padrão 3).
-- Rotina agendada apaga prévias e miniaturas vencidas e marca a galeria como `expired`. Aviso por e-mail 1 dia antes.
-- Prorrogação pelo admin fica registrada no `audit_log`.
-- Retenção dos **originais** é separada do prazo das prévias (decisão D-07).
+- `preview_expires_at = published_at + preview_ttl_days` (padrão 3, configurável por galeria).
+- Rotina agendada apaga prévias e miniaturas vencidas e marca a galeria como `expired`. Aviso por e-mail 1 dia antes. Prorrogação registrada no `audit_log`.
+- Retenção dos **originais** depende do plano e da decisão D-07.
 
-**Limitação assumida**: não é possível impedir 100% de capturas de tela. A defesa real é prévia pequena, marca d'água, original inacessível e limites de acesso. Bloquear o botão direito é apenas cosmético. Alertar sobre downloads/requisições em massa.
+**Limitação assumida:** não é possível impedir 100% de capturas de tela. A defesa real é prévia pequena, marca d'água, original inacessível e limites de acesso. Bloquear o botão direito é cosmético. Alertar sobre acessos em massa.
 
 ---
 
-## 10. Álbuns
+## 11. Planos, cotas e custos de armazenamento
 
-- O cliente seleciona as fotos; o sistema ordena por `taken_at` como sugestão inicial.
-- O montador reordena por arrastar e soltar, agrupa em lâminas e escolhe o tamanho (`album_sizes`), respeitando mínimo e máximo de páginas.
-- A **ilustração** do álbum é uma pré-visualização das lâminas com as prévias nas posições do layout.
+### Entitlements por plano (proposta; valores em D-12)
+`storage_gb`, `max_members`, `albums_per_month`, recursos habilitados. As cotas são **verificadas no servidor** no momento do upload (nunca só na tela) e medidas em `studio_usage`.
+
+### Custo de armazenamento (estimativa; confirmar nos sites oficiais antes de decidir)
+
+Preços públicos consultados em 02/11/2026: Cloudflare R2 cerca de US$ 0,015 por GB-mês, sem cobrança de saída; Backblaze B2 cerca de US$ 6,95 por TB-mês, com saída grátis até 3× o armazenado.
+
+| Cota de referência (planos Davions) | R2 (aprox./mês) | B2 (aprox./mês) |
+|---|---|---|
+| 100 GB | US$ 1,50 | US$ 0,70 |
+| 500 GB | US$ 7,50 | US$ 3,50 |
+| 1.000 GB | US$ 15,00 | US$ 7,00 |
+
+Isso é **só armazenamento**. Somar: taxas de Pix/cartão, impostos, e-mail, WhatsApp (se houver), hospedagem, suporte e IA. Multiplicar pela cotação do dólar do dia.
+
+### Trial
+Referência: 30 dias sem cartão. Risco de abuso (contas descartáveis ocupando espaço). Proposta: cota reduzida no trial, verificação de e-mail, limites de upload, e **limpeza automática** após o fim do trial sem conversão (com aviso). Valores em D-14.
+
+---
+
+## 12. Álbuns (B3)
+
+- O cliente seleciona as fotos; o sistema ordena por `taken_at` como sugestão.
+- O diagramador reordena por arrastar e soltar, agrupa em lâminas e escolhe o tamanho, respeitando mínimo e máximo de páginas.
+- A **ilustração** é a pré-visualização das lâminas com as prévias nas posições do layout.
 - Estados: `draft` → `selecting` → `in_assembly` → `proof_sent` → `approved` → `delivered`. Transições validadas no servidor.
-- Edição concorrente: salvamento automático com controle de versão (evitar que dois montadores se sobrescrevam).
-- Exportação: ZIP com arquivos numerados na ordem final + manifesto (CSV e PDF de conferência).
+- Edição concorrente: salvamento automático com controle de versão.
+- Exportação: ZIP numerado na ordem final + manifesto (CSV e PDF de conferência).
+- **Diferencial a validar com fotógrafos reais** (hipóteses, não fatos): fluxo pensado para o **diagramador externo** (convite com acesso só àquele álbum), simplicidade, preço e Pix. O concorrente de referência já anuncia um diagramador de álbuns como "em breve".
 
 ---
 
-## 11. Segurança
+## 13. Segurança
 
 ### Requisitos
 
 | ID | Requisito | Tarefa |
 |---|---|---|
 | S-01 | Sessão opaca no servidor; cookie `HttpOnly`, `Secure`, `SameSite=Lax`; expiração curta e revogação | 006 |
-| S-02 | Senhas com argon2id; bloqueio progressivo após falhas | 006 |
-| S-03 | 2FA TOTP obrigatório para admin | 008 |
-| S-04 | Rate limiting em login, link de acesso, download e formulários | 006 |
-| S-05 | RBAC (admin/assembler/client) | 007 |
-| S-06 | Autorização **por recurso** (dono da galeria) em toda rota + testes de IDOR para cada rota | 007 |
-| S-07 | IDs públicos aleatórios (UUID); nunca sequenciais | 005 |
+| S-02 | argon2id; bloqueio progressivo após falhas | 006 |
+| S-03 | 2FA TOTP obrigatório para donos de estúdio e admins da plataforma | 008 |
+| S-04 | Rate limiting em login, link de acesso, download e formulários (por IP e por estúdio) | 006 |
+| S-05 | RBAC (platform_admin, studio_owner, studio_member, assembler, client) | 007 |
+| S-06 | Autorização **por recurso e por estúdio** em toda rota; testes de IDOR | 007 |
+| S-07 | IDs públicos aleatórios (UUID) | 005 |
 | S-08 | CSRF em ações que alteram dados | 006 |
-| S-09 | CORS por `.env`, origens/métodos/cabeçalhos explícitos | 003 |
+| S-09 | CORS por `.env`, explícito | 003 |
 | S-10 | Cabeçalhos de segurança no backend | 003 |
-| S-11 | CSP, HSTS, `nosniff`, `frame-ancestors 'none'`, Referrer-Policy e Permissions-Policy no frontend | 004 |
-| S-12 | Validação de toda entrada (Pydantic) e limite de tamanho do corpo | 003 |
-| S-13 | Somente consultas parametrizadas (ORM); nenhum SQL por concatenação | 005 |
-| S-14 | Validação de upload por conteúdo, tipo e tamanho; limite de pixels | 010–011 |
-| S-15 | Bucket privado e URLs assinadas curtas | 010 |
-| S-16 | Webhook de pagamento com assinatura verificada e idempotência | 018 |
+| S-11 | CSP, HSTS, `nosniff`, `frame-ancestors 'none'`, Referrer-Policy, Permissions-Policy no frontend | 004 |
+| S-12 | Validação de toda entrada (Pydantic) e limite de corpo | 003 |
+| S-13 | Somente consultas parametrizadas (ORM) | 005 |
+| S-14 | Validação de upload por conteúdo, tipo, tamanho e limite de pixels | 010–011 |
+| S-15 | Bucket privado, URLs assinadas curtas | 010 |
+| S-16 | Webhooks (pagamento e assinatura) com assinatura verificada e idempotência | 016–017 |
 | S-17 | Segredos só em variáveis de ambiente; varredura de segredos (gitleaks) | 004 |
 | S-18 | Lockfiles versionados; `pip-audit` e `npm audit` no CI; Dependabot | 004 |
-| S-19 | Next.js sempre na versão corrigida mais recente (houve falhas críticas de execução remota em 2026; conferir o aviso vigente a cada atualização) | contínuo |
-| S-20 | Erros sem stack trace para o cliente; timeouts em chamadas externas | 003 |
-| S-21 | Logs estruturados sem PII/segredos; id de requisição | 007 |
-| S-22 | `audit_log` somente inserção (logins, downloads, ações de admin) | 007 |
-| S-23 | Backups automáticos e **teste de restauração** | 025 |
-| S-24 | TLS, HSTS, Cloudflare/WAF na frente, firewall (portas 80/443), SSH por chave | 025 |
-| S-25 | Contêiner sem root e menor privilégio nos tokens de storage | 025 |
-| S-26 | Revisão de segurança por **modelo diferente** do que escreveu o código | 024 |
+| S-19 | Next.js sempre na versão corrigida mais recente (houve falhas críticas em 2026; conferir o aviso vigente a cada atualização) | contínuo |
+| S-20 | Erros sem stack trace; timeouts em chamadas externas | 003 |
+| S-21 | Logs estruturados sem PII/segredos, com `request_id` e `studio_id` | 007 |
+| S-22 | `audit_log` somente inserção | 007 |
+| S-23 | Backups automáticos e **teste de restauração** | 019 |
+| S-24 | TLS, HSTS, Cloudflare/WAF, firewall, SSH por chave | 019 |
+| S-25 | Contêiner sem root; menor privilégio nos tokens de storage | 019 |
+| S-26 | Revisão de segurança por **modelo diferente** do que escreveu o código | 036 |
+| S-27 | Isolamento por estúdio: `studio_id` em tudo + RLS; papel do banco sem `BYPASSRLS` | 005, 007 |
+| S-28 | Testes automáticos de isolamento entre estúdios em todas as rotas | 007 |
+| S-29 | Storage com prefixo por estúdio; URL assinada só após checar estúdio | 010 |
+| S-30 | Sites dos estúdios em domínio separado do app; CSP restritiva | 022 |
+| S-31 | Sanitização de todo conteúdo escrito pelo estúdio (sem HTML cru) | 022 |
+| S-32 | Slugs reservados; proteção contra tomada de subdomínio e domínio próprio verificado | 022, 029 |
+| S-33 | Cotas e limites por estúdio (armazenamento, uploads, requisições) | 010, 016 |
+| S-34 | Acesso de suporte da plataforma restrito, justificado e auditado | 007, 019 |
 
 ### Lacunas atuais
-
-Sem autenticação/autorização; sem cabeçalhos de segurança; sem rate limiting; sem validação de upload; CORS permissivo (`allow_methods=["*"]`, `allow_headers=["*"]` com `allow_credentials=True`); sem logs/auditoria; frontend sem lockfile; sem SAST/Dependabot; LGPD não implementada; só HTTP local.
+Sem autenticação/autorização; sem cabeçalhos; sem rate limiting; sem validação de upload; CORS permissivo (`allow_methods=["*"]`, `allow_headers=["*"]` com `allow_credentials=True`); sem logs/auditoria; frontend sem lockfile; sem SAST/Dependabot; LGPD não implementada; só HTTP local; sem multi-tenancy.
 
 ---
 
-## 12. LGPD
+## 14. LGPD
 
-> Isto é um guia técnico, não aconselhamento jurídico. **Um advogado deve revisar** política de privacidade, termos, contrato e autorização de imagem antes do lançamento.
+> Guia técnico, não aconselhamento jurídico. **Um advogado deve revisar** termos de uso, política de privacidade, contrato de operador, autorização de imagem e política de conteúdo antes do beta com dados reais.
+
+### Papéis
+- **Fotógrafo/estúdio = controlador** dos dados dos clientes dele (inclusive fotos, e fotos de crianças).
+- **Plataforma = operadora** desses dados: trata conforme as instruções do estúdio.
+- **Plataforma = controladora** dos dados dos próprios fotógrafos (cadastro, cobrança, uso).
 
 | ID | Requisito |
 |---|---|
-| L-01 | Definir a **base legal por finalidade**: entrega do serviço (execução de contrato), uso no portfólio e marketing (consentimento próprio, separado e revogável) |
-| L-02 | Fotos de **crianças e adolescentes**: consentimento específico e em destaque de ao menos um dos pais/responsável (art. 14), registrado em `consents` |
-| L-03 | Autorização de uso de imagem para portfólio/redes **separada** da contratação |
-| L-04 | Não usar **reconhecimento facial** (dado biométrico) |
-| L-05 | Política de privacidade, termos de uso e aviso claro de prazos de retenção |
-| L-06 | **Encarregado** (contato de privacidade) e canal para direitos do titular (acesso, correção, exclusão) com `data_requests` |
-| L-07 | Retenção e eliminação automatizadas (prévias em 3 dias; originais conforme política D-07); exclusão sob pedido |
-| L-08 | Minimização: não coletar dado que não seja necessário (dados de pagamento ficam com o provedor) |
-| L-09 | Registro das operações de tratamento em `docs/lgpd/` e relatório de impacto quando aplicável |
-| L-10 | **Incidente de segurança**: runbook pronto; comunicação à ANPD e aos titulares em **3 dias úteis** (prazo em dobro para agentes de pequeno porte — verificar enquadramento); manter registro por 5 anos |
-| L-11 | Contratos/termos com operadores (hospedagem, storage, e-mail, pagamento); avaliar transferência internacional de dados |
-| L-12 | Cookies/analytics: só pedir consentimento se usar itens não essenciais |
+| L-01 | Termos de uso e **contrato de operador** (DPA) com cada estúdio no cadastro; lista de suboperadores (hospedagem, storage, e-mail, pagamento) |
+| L-02 | Ferramentas para o estúdio cumprir a LGPD: registro de consentimentos, modelos de texto, exclusão e retenção configuráveis |
+| L-03 | Fotos de **crianças e adolescentes**: consentimento específico e em destaque de ao menos um dos pais/responsável (art. 14), registrado em `consents` |
+| L-04 | Autorização de uso de imagem para portfólio/redes **separada** da contratação |
+| L-05 | Não usar **reconhecimento facial** (dado biométrico) |
+| L-06 | Política de privacidade da plataforma, encarregado e canal de direitos do titular (`data_requests`) |
+| L-07 | Retenção e eliminação automatizadas (prévias; originais conforme plano); exclusão sob pedido |
+| L-08 | Minimização: dados de pagamento ficam com o provedor |
+| L-09 | Registro das operações em `docs/lgpd/` e relatório de impacto quando aplicável |
+| L-10 | **Incidente de segurança**: runbook pronto; prazo de 3 dias úteis para comunicar a ANPD e os titulares (em dobro para agentes de pequeno porte — verificar enquadramento); registro por 5 anos; definir em contrato o prazo para a operadora avisar o controlador |
+| L-11 | Avaliar transferência internacional (storage, e-mail, IA fora do Brasil) |
+| L-12 | **Conteúdo e abuso**: termos de uso, canal de denúncia e processo de remoção de conteúdo |
+| L-13 | Acesso da equipe da plataforma aos dados dos estúdios: mínimo necessário e auditado (S-34) |
+| L-14 | Cookies/analytics: consentimento só para itens não essenciais |
+
+### Pagamentos (orientação jurídica e contábil necessária)
+Usar provedor com **subcontas e divisão de pagamento**, para que o dinheiro do cliente final não fique retido na plataforma. Definir a cobrança das assinaturas (plataforma → estúdio) separada das vendas (cliente → estúdio). Consultar contador sobre impostos e notas.
 
 ---
 
-## 13. Qualidade e processo com agentes
+## 15. Qualidade, processo com agentes e skills
 
-- **Definição de pronto (DoD)** de toda tarefa: critérios de aceite atendidos; `ruff`, `mypy` e `pytest` verdes; `tsc`, ESLint e build do frontend verdes quando tocado; itens S-xx e L-xx da tarefa cumpridos e testados; sem novas dependências sem aprovação; documentação atualizada; relatório em `docs/reviews/NNN-nome.md`; commit feito.
-- **Testes obrigatórios** por rota protegida: sem login (401), papel errado (403), recurso de outro usuário (404/403), caso feliz.
-- **CI** (`.github/workflows/ci.yml`): lint, tipos, testes, `pip-audit`, `npm audit`, gitleaks, build.
-- **Papéis dos agentes**: coordenador (planeja, escreve tarefas, revisa `git diff`), executor (`build`), explorador (lê o projeto), revisor de segurança (somente leitura, modelo de outra família).
+- **Definição de pronto (DoD):** critérios de aceite atendidos; `ruff`, `mypy`, `pytest` verdes; `tsc`, ESLint e build do frontend verdes quando tocado; itens S-xx e L-xx da tarefa cumpridos e testados; **teste de isolamento entre estúdios** quando a tarefa criar ou alterar rotas; sem dependências novas sem aprovação; documentação atualizada; relatório em `docs/reviews/NNN-nome.md`; commit feito.
+- **Testes por rota protegida:** sem login (401), papel errado (403), recurso de outro usuário ou **outro estúdio** (403/404), caso feliz.
+- **CI:** lint, tipos, testes, `pip-audit`, `npm audit`, gitleaks, build.
+- **Papéis dos agentes:** coordenador (planeja, escreve tarefas, revisa `git diff`), executor (`build`), explorador, revisor de segurança (somente leitura, modelo de outra família).
 - Modelos gratuitos: só para código sem informação sensível.
 
----
+### Ativação de skills e MCPs (só os que a tarefa listar)
 
-## 14. Marcos de entrega e roadmap
-
-### Regra comum de conclusão
-
-Um marco só é concluído quando todas as tarefas associadas atendem aos próprios critérios de aceite e à definição de pronto (seção 13), as validações e revisões aplicáveis foram aprovadas, a documentação está atualizada e não há bloqueios conhecidos para a entrega do marco. Decisões D-xx necessárias devem ser aprovadas antes de executar as tarefas que delas dependem. Concluir uma tarefa isolada não conclui automaticamente o marco.
-
-### M0 — Fundação técnica (003–005)
-
-**Entregáveis:** backend organizado e endurecido; frontend e raiz estruturados; CI e ambiente local documentados; PostgreSQL, SQLAlchemy e Alembic integrados.
-
-**Tarefas:**
-- **003 Backend: reorganização + hardening base (sem Postgres).** Mover para `app/`; `core/config.py` com pydantic-settings lendo `.env`; CORS por `.env` e restrito; middleware de cabeçalhos de segurança; limite de corpo e tratamento de erros; `pyproject.toml` + ruff/mypy/pytest; `requirements-dev.txt`; venv com Python 3.12/3.13; atualizar o pin do FastAPI; testes de `/health` e dos cabeçalhos; `.gitignore` ampliado.
-- **004 Frontend e raiz.** Remover boilerplate; estrutura `src/`; renomear pacote; versionar lockfile; cabeçalhos de segurança no `next.config`; `.editorconfig`; `infra/docker-compose.yml` (PostgreSQL, MinIO, Mailpit — preparado, sem subir); CI; Dependabot; gitleaks (pre-commit); ADR-001 a 006.
-- **005 PostgreSQL + SQLAlchemy 2 + Alembic.** Sessão/engine, `Base`, primeira migração (`users`, `sessions`, `audit_log`), testes de integração com PostgreSQL em contêiner.
-
-**Critérios do marco:** instalação e execução local reproduzíveis conforme a documentação; migrações e testes de integração do banco passam; CI executa as verificações definidas para backend e frontend.
-
-> A tarefa 003 original cobria backend, frontend e raiz juntos. Foi dividida em 003 e 004 para manter tarefas pequenas e revisáveis.
-
-### M1 — Identidade e acesso (006–009)
-
-**Entregáveis:** acesso seguro de admin e cliente, autorização por papel e recurso, 2FA para admin e consentimento inicial.
-
-**Tarefas:**
-- **006** Login do admin (seed por CLI), sessão, logout, argon2id, bloqueio progressivo, rate limit, CSRF.
-- **007** RBAC, autorização por recurso, testes de IDOR, `audit_log`, logging com id de requisição.
-- **008** 2FA TOTP para admin e recuperação.
-- **009** Acesso do cliente (link mágico de uso único e/ou PIN — decisão D-05) e consentimento inicial.
-
-**Critérios do marco:** fluxos de acesso funcionam conforme os papéis; testes cobrem não autenticado, papel incorreto e acesso a recurso alheio nas rotas protegidas.
-
-### M2 — Galerias e fotos (010–014)
-
-**Entregáveis:** ciclo seguro de upload, processamento, publicação e acesso às prévias, com expiração automatizada.
-
-**Tarefas:**
-- **010** Storage S3 (MinIO no dev), upload assinado e validações.
-- **011** Worker de imagens: derivados, marca d'água, `taken_at`, limites.
-- **012** CRUD de galerias (admin), publicar, prazo de 3 dias.
-- **013** Galeria do cliente (API e tela): grade, tela cheia, favoritos.
-- **014** Rotina de expiração e e-mails de lembrete.
-
-**Critérios do marco:** o ciclo upload → processamento → publicação → visualização autorizada → expiração é validado; os originais permanecem privados e inacessíveis antes do pagamento.
-
-### M3 — Álbuns (015–017)
-
-**Entregáveis:** seleção de fotos convertida em álbum montável, prova para o cliente e pacote de produção.
-
-**Tarefas:**
-- **015** Modelo de álbum, tamanhos e seleção do cliente.
-- **016** Montagem: ordenação, lâminas, ilustração do layout.
-- **017** Prova e aprovação do cliente; exportação para o montador.
-
-**Critérios do marco:** limites e transições do álbum são validados no servidor; prova, aprovação e exportação correspondem à seleção e à ordem final.
-
-### M4 — Pagamento e entrega (018–019)
-
-**Entregáveis:** pedido pago via Pix e entrega dos originais autorizada e auditável.
-
-**Tarefas:**
-- **018** Pedido + Pix (provedor D-01) + webhook assinado e idempotente.
-- **019** Liberação dos originais (URLs assinadas curtas + registro de downloads).
-
-**Critérios do marco:** integração validada no ambiente de testes do provedor escolhido; assinatura e idempotência do webhook verificadas; downloads liberados apenas após confirmação do pagamento e registrados.
-
-### M5 — Site e experiência visual (020–022)
-
-**Entregáveis:** identidade visual aprovada, site institucional e experiência coerente no desktop, celular e áreas logadas.
-
-**Tarefas:**
-- **020** Briefing visual, design tokens e layout base (usar a skill `frontend-design`).
-- **021** Páginas: home, portfólio, serviços, sobre, contato.
-- **022** Áreas logadas (admin e cliente) com a mesma identidade; acessibilidade e desempenho.
-
-**Critérios do marco:** páginas e áreas previstas são responsivas e acessíveis; tipo, lint e build passam; páginas legais, quando publicadas, passam pela revisão jurídica aplicável.
-
-**Dependência e paralelismo:** pode começar após a tarefa 013 e avançar em paralelo com M3 e M4, sem alterar os critérios de segurança e autorização das áreas logadas.
-
-### M6 — LGPD e pré-lançamento (023–025)
-
-**Entregáveis:** direitos do titular e retenção operacionalizados; segurança, recuperação e operação preparadas para lançamento.
-
-**Tarefas:**
-- **023** Páginas legais, consentimentos finais, direitos do titular (exportar/excluir), retenção.
-- **024** Revisão de segurança por modelo diferente, testes de abuso, auditoria de dependências, checklist OWASP ASVS.
-- **025** Backups com teste de restauração, monitoramento, runbook de incidente, deploy (VPS + Cloudflare), checklist de go-live.
-
-**Critérios do marco:** solicitações LGPD e retenção são exercitáveis; restauração de backup foi testada; revisão de segurança e checklist de lançamento não têm bloqueios abertos. Este marco é o gate de lançamento.
-
-### Dependências e gates de decisões
-
-| Dependência ou decisão | Marco/tarefas afetados |
+| Quando | Skills/MCPs |
 |---|---|
-| M0 → M1 → M2 | Sequência principal da fundação até galerias acessíveis. |
-| M2, após fluxo da tarefa 013 → M3 | A montagem depende da seleção do cliente disponível. |
-| M3 → M4 | Pagamento e liberação dependem do fluxo de álbum definido. |
-| Tarefa 013 → M5 | Site e identidade podem avançar em paralelo após a galeria do cliente. |
-| M1–M5 → M6 | Pré-lançamento integra os fluxos necessários e bloqueia go-live até concluir. |
-| D-01 | M4 / tarefa 018: provedor de Pix. |
-| D-02 | M2 / tarefa 010: storage de produção. |
-| D-03 | M1 / tarefa 009 e M2 / tarefa 014: e-mail transacional e lembretes. |
-| D-04 | M6 / tarefa 025: hospedagem e domínio. |
-| D-05 | M1 / tarefa 009: forma de acesso do cliente. |
-| D-06 | M3 / tarefa 015: tamanhos e regras de álbum. |
-| D-07 | M2 / tarefa 014, M4 / tarefa 019 e M6 / tarefa 023: retenção e prazo de download. |
-| D-08 | M6 / tarefa 023: encarregado e autorização de imagem. |
-| D-09 | M5 / tarefa 020: shadcn/ui e identidade visual. |
-| D-10 | M1 / tarefa 007: papel do montador. |
-| D-11 | M6 / tarefa 023: revisão jurídica. |
-
-As tarefas 003B–003E são itens auxiliares de hardening, configuração e processo acompanhados separadamente na seção 18; não mudam a alocação das tarefas de produto acima.
+| 003–004 | Nenhum |
+| 005–009 | `lgpd-data-mapping`, `lgpd-consent-schema`, `lgpd-dsar` (adaptar de Prisma para SQLAlchemy) |
+| 019, 035 | `lgpd-audit` e demais skills de LGPD, com revisão jurídica |
+| 021–022, 029 | `frontend-design`, web-interface-guidelines, GSAP (se aprovada), `chrome-devtools-mcp` (perfil isolado, sem telemetria), 21st MCP (somente busca) |
+| 036 | `security-audit` (Cloudflare) com modelo forte e diferente |
+| Nunca por padrão | `superpowers` (fluxos obrigatórios conflitam com este processo); só skills avulsas aprovadas: `test-driven-development`, `systematic-debugging`, `verification-before-completion` |
 
 ---
 
-## 15. Decisões pendentes (REQUEREM APROVAÇÃO do Fagner)
+## 16. Roadmap
+
+### Fase 0 — Fundação
+- **003 Backend: reorganização + hardening base (sem Postgres).** `app/`; `core/config.py` (pydantic-settings); CORS por `.env`; middleware de cabeçalhos de segurança; limite de corpo e erros; `pyproject.toml` + ruff/mypy/pytest; `requirements-dev.txt`; venv Python 3.12/3.13; atualizar o pin do FastAPI; testes de `/health` e cabeçalhos; `.gitignore` ampliado.
+- **004 Frontend e raiz.** Limpar boilerplate; estrutura `src/`; lockfile versionado; cabeçalhos no `next.config`; `.editorconfig`; `infra/docker-compose.yml` (PostgreSQL, MinIO, Mailpit — preparado); CI; Dependabot; gitleaks; ADR-001 a 008.
+- **005 PostgreSQL + SQLAlchemy 2 + Alembic, já multi-tenant.** Engine/sessão; `studios`, `users`, `studio_members`, `sessions`, `audit_log`; `studio_id` em tudo; RLS e papel do banco sem `BYPASSRLS`; testes de integração em contêiner.
+
+### Fase 1 — Identidade e acesso
+- **006** Login (dono do estúdio e admin), sessão, logout, argon2id, bloqueio, rate limit, CSRF.
+- **007** RBAC, autorização por recurso e por estúdio, **testes de isolamento**, `audit_log`, logging, acesso de suporte.
+- **008** 2FA TOTP.
+- **009** Acesso do cliente final (link mágico e/ou PIN — D-05) e consentimento inicial.
+
+### Fase 2 — B1: galerias e fotos
+- **010** Storage S3 (MinIO no dev), upload assinado, validações, `studio_usage` e cotas.
+- **011** Worker de imagens: derivados, marca d'água, `taken_at`, limites.
+- **012** CRUD de clientes e galerias, publicar, prazo configurável.
+- **013** Galeria do cliente (API e tela) com a marca do estúdio, mobile first.
+- **014** Favoritos, seleção e comentários.
+- **015** Expiração das prévias e e-mails (acesso, lembrete, entrega).
+
+### Fase 3 — B1: cobrança, pagamento e beta
+- **016** Planos, assinatura e trial (cobrança da plataforma ao estúdio).
+- **017** Pagamento do cliente final (Pix com split/subconta — D-01), webhook assinado e idempotente.
+- **018** Liberação dos originais (URLs assinadas curtas) e registro de downloads.
+- **019** **Pré-beta:** LGPD mínima (termos, privacidade, contrato de operador, direitos do titular, denúncia/remoção), revisão de segurança do que existe, backups com teste de restauração, ambiente de staging.
+- **020** **Beta fechado** com 3 a 5 fotógrafos reais e **decisão de rumo** (o que entra no B2 e se o B3 sobe de prioridade).
+
+### Fase 4 — B2: site e gestão do estúdio (épicos; ordem definida pelo beta)
+- **021** Identidade visual e design system (referência: skill `frontend-design`).
+- **022** Site do estúdio: construtor de páginas, tema, subdomínio, domínio separado do app.
+- **023** CRM, clientes e Kanban.
+- **024** Agenda e agendamento online.
+- **025** Contratos e assinatura eletrônica (validade jurídica — D-17).
+- **026** Briefing e questionários.
+- **027** E-mails e WhatsApp automatizados (D-16).
+- **028** Financeiro.
+- **029** Domínio próprio e SEO.
+
+### Fase 5 — B3: álbuns
+- **030** Modelo de álbum, tamanhos e seleção do cliente.
+- **031** Montagem: ordenação, lâminas, arrastar e soltar.
+- **032** Ilustração do layout.
+- **033** Prova, aprovação e exportação para produção.
+- **034** Diagramador convidado e limites por plano.
+
+> O beta pode indicar que o B3 deve vir antes do B2. A ordem das fases 4 e 5 é do Fagner.
+
+### Fase 6 — Lançamento
+- **035** LGPD operacional completa (retenção por estúdio, exportar/excluir, relatórios).
+- **036** Revisão de segurança por modelo diferente, testes de abuso e de isolamento, auditoria de dependências, checklist OWASP ASVS.
+- **037** Monitoramento, runbook de incidente, deploy de produção (VPS + Cloudflare), checklist de go-live.
+
+---
+
+## 17. Decisões pendentes (REQUEREM APROVAÇÃO do Fagner)
 
 | ID | Decisão |
 |---|---|
-| D-01 | Provedor de Pix (Mercado Pago, Asaas, Stripe etc.) |
+| D-01 | Provedor de Pix com subcontas/split (Mercado Pago, Asaas, Stripe etc.) |
 | D-02 | Storage: Cloudflare R2 ou Backblaze B2 |
-| D-03 | E-mail transacional (Resend, SMTP próprio etc.) |
-| D-04 | Hospedagem (VPS, PaaS) e domínio/subdomínios |
-| D-05 | Acesso do cliente: link mágico, PIN ou ambos |
-| D-06 | Tamanhos de álbum, preços e regras de páginas |
-| D-07 | Retenção dos originais e prazo de download após pagamento |
-| D-08 | Encarregado (nome e contato) e modelo de autorização de imagem |
-| D-09 | Usar shadcn/ui? Identidade visual e referências do site |
-| D-10 | Montador é papel separado ou permissão do admin? |
-| D-11 | Revisão jurídica: quem e quando |
+| D-03 | E-mail transacional |
+| D-04 | Hospedagem, domínio da plataforma e domínio separado para sites dos estúdios |
+| D-05 | Acesso do cliente final: link mágico, PIN ou ambos |
+| D-06 | Tamanhos de álbum e regras de páginas (padrão da plataforma e/ou definido por estúdio) |
+| D-07 | Retenção dos originais e prazo de download após pagamento, por plano |
+| D-08 | Encarregado (nome e contato) e modelos de contrato/autorização de imagem |
+| D-09 | shadcn/ui? Identidade visual da plataforma |
+| D-10 | Diagramador: papel interno, convidado externo ou ambos |
+| D-11 | Revisão jurídica: quem e quando (antes do beta com dados reais) |
+| D-12 | Planos, preços e cotas |
+| D-13 | Modelo de monetização: assinatura, comissão sobre vendas ou mista |
+| D-14 | Trial: duração, cota, anti-abuso e limpeza |
+| D-15 | Nome e marca (consultar advogado/INPI) |
+| D-16 | WhatsApp: provedor e custos, ou só e-mail no início |
+| D-17 | Contratos: assinatura eletrônica própria ou provedor; validade jurídica |
 
 ---
 
-## 16. Riscos
+## 18. Riscos
 
 | Risco | Mitigação |
 |---|---|
+| Um estúdio acessar dados de outro | `studio_id` + RLS + testes de isolamento em todas as rotas |
+| Escopo gigante (concorrente maduro) | Três blocos; B1 como MVP; beta antes de B2 |
+| Custo de armazenamento fora de controle | Cotas por plano, trial limitado, expiração, métricas por estúdio |
 | Modelos gratuitos coletam dados | Dados fictícios; modelos pagos/zero retenção para código sensível |
 | Falhas críticas no Next.js | Atualização contínua, Dependabot, contenção (sem root, tokens mínimos) |
-| Pacotes inventados pela IA | Conferir nome/origem antes de instalar; instalação só com aprovação |
-| Limites de cota de modelos gratuitos | Tarefas pequenas, poucos agentes, um modelo por função |
+| Pacotes inventados pela IA | Conferir nome/origem; instalação só com aprovação |
+| XSS em conteúdo do estúdio | Sanitização, CSP restritiva, domínio separado |
 | Vazamento de fotos | Bucket privado, URLs curtas, auditoria, rate limit |
+| Questões legais (LGPD, pagamentos, abuso, marca) | Revisão jurídica e contábil antes do beta |
 | Perda de dados | Backups e teste de restauração |
-| Escopo crescendo | Uma tarefa por vez, critérios de aceite, fora de escopo explícito |
-| Custo de storage/tráfego | Storage sem cobrança de saída, expiração das prévias, monitoramento |
 
 ---
 
-## 17. Glossário
+## 19. Glossário
 
-- **Prévia**: versão pequena e com marca d'água da foto, válida por 3 dias.
-- **Original**: arquivo em alta qualidade, liberado só após o pagamento.
-- **Lâmina**: par de páginas do álbum.
-- **Prova**: ilustração do álbum enviada ao cliente para aprovação.
-- **IDOR**: acessar o recurso de outra pessoa trocando um ID na URL.
+- **Estúdio (tenant):** o espaço de um fotógrafo na plataforma.
+- **Cliente final:** cliente do fotógrafo.
+- **Prévia:** versão pequena e com marca d'água da foto, válida pelo prazo da galeria.
+- **Original:** arquivo em alta qualidade, liberado após o pagamento.
+- **Lâmina:** par de páginas do álbum.
+- **Prova:** ilustração do álbum enviada ao cliente para aprovação.
+- **RLS:** segurança por linha no PostgreSQL.
+- **IDOR:** acessar o recurso de outra pessoa trocando um ID na URL.
 
 ---
 
-## 18. Status (atualizar a cada tarefa)
+## 20. Status (atualizar a cada tarefa)
 
 | Tarefa | Descrição | Status |
 |---|---|---|
-| 001–002 | Etapas anteriores (ver `docs/tasks/`) | concluídas |
-| 003 | Backend: reorganização + hardening base | concluída (inclui hardening 003B) |
-| 003B | Hardening restante e atualização de pins | concluída |
-| 003C | Agentes, skills, MCPs e permissões | concluída e validada |
-| 003D | Agente revisor geral de alterações | tarefa preparada; execução pendente de aprovação |
-| 003E | Marcos de entrega do produto | concluída; proposta aprovada e registrada |
+| 001–002 | Etapas anteriores (ver `docs/tasks/`) | concluídas (confirmar) |
+| 003 | Backend: reorganização + hardening base | pendente |
 | 004 | Frontend e raiz | pendente |
-| 005 | PostgreSQL + SQLAlchemy + Alembic | pendente |
+| 005 | PostgreSQL + SQLAlchemy + Alembic multi-tenant | pendente |
 | 006–009 | Identidade e acesso | pendente |
-| 010–014 | Galerias e fotos | pendente |
-| 015–017 | Álbuns | pendente |
-| 018–019 | Pagamento | pendente |
-| 020–022 | Site e identidade visual | pendente |
-| 023–025 | LGPD operacional e pré-lançamento | pendente |
-
-### Status dos marcos
-
-| Marco | Tarefas | Status |
-|---|---|---|
-| M0 — Fundação técnica | 003–005 | em andamento; 003 concluída, 004–005 pendentes |
-| M1 — Identidade e acesso | 006–009 | pendente |
-| M2 — Galerias e fotos | 010–014 | pendente |
-| M3 — Álbuns | 015–017 | pendente |
-| M4 — Pagamento e entrega | 018–019 | pendente |
-| M5 — Site e experiência visual | 020–022 | pendente |
-| M6 — LGPD e pré-lançamento | 023–025 | pendente |
-
-As tarefas auxiliares 003B–003E têm status individual acima e não alteram o estado dos marcos de produto; a execução da 003D continua dependendo de aprovação específica.
+| 010–015 | B1: galerias e fotos | pendente |
+| 016–020 | B1: cobrança, pagamento, pré-beta e beta | pendente |
+| 021–029 | B2: site e gestão do estúdio | pendente |
+| 030–034 | B3: álbuns | pendente |
+| 035–037 | Lançamento | pendente |
