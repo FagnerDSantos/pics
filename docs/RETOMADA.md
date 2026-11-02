@@ -26,10 +26,15 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 
 ## Alterações locais preservadas
 
-O commit 003C está fechado. Permanece como alteração local a escolha de modelos `opencode-go/gpt-6-luna` em `opencode.json`, restaurada após o commit e mantida fora dele. Os arquivos do plugin local de fallback, seu teste e `opencode.json.pre-go-fallback.bak` também continuam sem commit; não os descartar nem incluir em outro commit sem revisão explícita. A tarefa 003D e a atualização correspondente do plano/checkpoint estão sendo registradas em commit documental separado.
+Os commits 003C e da tarefa preparada 003D estão fechados. Permanecem no working tree, salvos em disco mas sem commit, a escolha de modelos `opencode-go/gpt-6-luna` em `opencode.json`, os arquivos do plugin local de fallback, seu teste e `opencode.json.pre-go-fallback.bak`. Não descartar nem incluir esses arquivos em outro commit sem revisão explícita. O plugin de fallback pode reenviar prompts para outros provedores; decidir se deve ficar ativo antes de usá-lo com dados não fictícios.
+
+## Decisão de escopo
+
+- Fagner concordou em organizar o trabalho em marcos de entrega no monorepo. A decomposição e os critérios de conclusão de cada marco ainda precisam ser discutidos; o plano mestre do produto não foi reestruturado nesta sessão.
 
 ## Próximos passos
 
-1. Discutir e decidir os blocos do escopo do produto; só então atualizar o plano mestre.
+1. Definir blocos, entregáveis e critérios de conclusão; atualizar o plano mestre após essa decisão.
 2. Aprovar a execução da tarefa 003D antes de criar o agente `change-reviewer`.
-3. Revisar o risco de privacidade e decidir se o plugin local de fallback pode reenviar prompts a outros provedores.
+3. Decidir se o plugin local de fallback pode permanecer ativo, considerando que reenvia prompts a outros provedores.
+4. Reiniciar o cliente OpenCode para carregar a configuração 003C; o processo/sessão atual não pode reiniciar a si próprio com segurança.
