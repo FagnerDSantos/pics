@@ -4,6 +4,18 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 
 ## Último ponto confirmado
 
+- Tarefa 004 implementada, com validação final do Compose pendente: pacote `pics-frontend` e lockfile para as dependências declaradas; typecheck e headers de segurança; Compose local para PostgreSQL, MinIO e Mailpit; CI com `npm ci`, lint, typecheck, build, auditoria npm com limiar alto/crítico e Gitleaks; Dependabot, hook Gitleaks, seis ADRs em proposta e README atualizado. `.editorconfig` e `.gitignore` existentes já cobriam o escopo.
+- A tela 004A não foi alterada. Smoke check em `http://127.0.0.1:3000` respondeu HTTP 200, `lang=pt-BR` e cabeçalhos CSP, Referrer-Policy e Permissions-Policy.
+- Validações 004: `npm ci`, `npm run lint`, `npm run typecheck`, `npm run build`, `ruff check app tests`, `mypy app`, `pytest` (8 passaram), `npm audit --audit-level=high`, análise YAML do Compose com PyYAML e `git diff --check` passaram. `npm audit` completo encontrou 16 vulnerabilidades moderadas em dependências de desenvolvimento; `npm audit --omit=dev` encontrou zero e `npm audit fix --dry-run` não ofereceu correção compatível. Nenhuma dependência foi atualizada. Fagner aprovou o limiar de CI alto/crítico. `docker compose config` bloqueado porque Docker CLI não está instalado; nenhum container foi iniciado ou baixado.
+- Após autorização para pausar, a prévia foi reiniciada em `http://127.0.0.1:3000`; smoke check respondeu HTTP 200, `lang=pt-BR` e headers de segurança.
+- Configuração Docker solicitada: ambiente bloqueado porque Docker Desktop/CLI e WSL não estão instalados, a sessão não é administradora e o firmware informa virtualização desativada. Diagnóstico e procedimento em `docs/tasks/004B-configurar-docker-local.md` e `docs/reviews/004B-configurar-docker-local.md`; nada foi instalado nem iniciado.
+- O ambiente bloqueia `git commit`; nenhum `git add` ou `git commit` foi executado. Relatório da tarefa: `docs/reviews/004-frontend-e-raiz.md`.
+- Fagner solicitou publicar o projeto no Git. Verificação: branch `master` está 8 commits à frente de `origin/master`, com alterações locais ainda não commitadas. Esta sessão não conseguiu executar commit/push por restrição da ferramenta; o fallback OpenCode e seu backup seguem preservados e não devem ser publicados sem revisão explícita do risco registrado abaixo.
+- Tarefa 004A (`docs/tasks/004A-tela-demonstrativa.md`) concluída: prévia responsiva em pt-BR, com indicadores fictícios e sem ações conectadas. `frontend/src/app/layout.tsx` contém idioma e metadados descritivos; a página ganhou atalho de teclado ao conteúdo principal e ajustes de contraste/foco. Revisão registrada em `docs/reviews/004A-tela-demonstrativa.md`.
+- Prévia local disponível em `http://127.0.0.1:3000`; smoke check HTTP 200 confirmou HTML, idioma e conteúdo demonstrativo. Inspeção visual em viewports ainda não realizada.
+- Arquivos desta tarefa: `frontend/src/app/page.tsx`, `frontend/src/app/globals.css`, `frontend/src/app/layout.tsx`, `docs/tasks/004A-tela-demonstrativa.md`, `docs/reviews/004A-tela-demonstrativa.md` e este checkpoint. Alterações locais OpenCode foram preservadas.
+- Validações da tarefa 004A: `npm run lint`, `npm run build` e `git diff --check` aprovados. Lint/build emitiram apenas o aviso do npm sobre `msvs_version` em configuração local.
+- O ambiente bloqueia `git commit`; nenhum commit foi criado para esta tarefa.
 - Projeto: `C:\desenvolvimento\pics`, branch `master`.
 - Tarefa 003B (hardening restante) concluída e validada; commit `6ac5929 fix: conclui hardening restante do backend`.
 - Este mecanismo de checkpoint foi registrado no commit `a8ffb50 docs: adiciona checkpoint de retomada`.
@@ -13,7 +25,7 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 
 ## Avaliação da estrutura
 
-- A base de monorepo e backend organizada é adequada para continuar a fase de fundação, mas não está pronta para produção: backend ainda tem somente rotas básicas e não tem banco/migrações/autenticação; frontend ainda é boilerplate; falta `frontend/package-lock.json`; o Compose contém só PostgreSQL, sem MinIO/Mailpit; o CI ainda usa `npm install` e não executa `tsc`, auditoria de dependências ou varredura de segredos. Parte disso está prevista nas tarefas 004–006.
+- A base de monorepo está organizada para continuar a fundação, mas não está pronta para produção: backend ainda tem somente rotas básicas e não tem banco/migrações/autenticação; frontend permanece uma prévia demonstrativa; o Compose, CI, lockfile e documentação base da tarefa 004 estão preparados. A auditoria npm reportou vulnerabilidades moderadas transitivas; tratar em tarefa autorizada de dependências.
 
 ## Auditoria OpenCode em andamento
 
@@ -30,11 +42,13 @@ Os commits 003C e da tarefa preparada 003D estão fechados. Permanecem no workin
 
 ## Decisão de escopo
 
-- Fagner concordou em organizar o trabalho em marcos de entrega no monorepo. A decomposição e os critérios de conclusão de cada marco ainda precisam ser discutidos; o plano mestre do produto não foi reestruturado nesta sessão.
+- Fagner aprovou os marcos M0–M6. Roadmap, entregáveis, critérios, dependências, gates de decisão e status inicial estão registrados na seção 14 e 18 de `docs/PLANO-MESTRE.md`; revisão em `docs/reviews/003E-marcos-entrega.md`.
+- Capacidade informada: 25 horas por semana (a mensagem mais recente corrige a estimativa anterior de 40 horas).
+- Previsão de planejamento, sujeita a revisões: M0–M2 (prévia de fotos, acesso do cliente, seleção e expiração) até 20/12/2026, com margem até 10/01/2027; fluxo completo M0–M4 (álbum, Pix e originais após pagamento) até 15/02/2027, com margem até 28/02/2027. Pressupõe escopo estável e decisões/aprovações sem longos bloqueios.
 
 ## Próximos passos
 
-1. Definir blocos, entregáveis e critérios de conclusão; atualizar o plano mestre após essa decisão.
-2. Aprovar a execução da tarefa 003D antes de criar o agente `change-reviewer`.
-3. Decidir se o plugin local de fallback pode permanecer ativo, considerando que reenvia prompts a outros provedores.
+1. Retomar publicação em uma sessão com permissão para `git commit`/`git push`; revisar explicitamente se os arquivos locais do fallback devem ser excluídos ou publicados.
+2. Habilitar AMD SVM/AMD-V no firmware e disponibilizar sessão Windows administrativa; então instalar/configurar WSL 2 e Docker Desktop, validar `docker compose config`, concluir 004 e executar 005.
+3. Aprovar a execução da tarefa 003D antes de criar o agente `change-reviewer`, se desejado.
 4. Reiniciar o cliente OpenCode para carregar a configuração 003C; o processo/sessão atual não pode reiniciar a si próprio com segurança.

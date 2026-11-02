@@ -334,46 +334,117 @@ Sem autenticação/autorização; sem cabeçalhos de segurança; sem rate limiti
 
 ---
 
-## 14. Roadmap
+## 14. Marcos de entrega e roadmap
 
-### Fase 0 — Fundação
+### Regra comum de conclusão
+
+Um marco só é concluído quando todas as tarefas associadas atendem aos próprios critérios de aceite e à definição de pronto (seção 13), as validações e revisões aplicáveis foram aprovadas, a documentação está atualizada e não há bloqueios conhecidos para a entrega do marco. Decisões D-xx necessárias devem ser aprovadas antes de executar as tarefas que delas dependem. Concluir uma tarefa isolada não conclui automaticamente o marco.
+
+### M0 — Fundação técnica (003–005)
+
+**Entregáveis:** backend organizado e endurecido; frontend e raiz estruturados; CI e ambiente local documentados; PostgreSQL, SQLAlchemy e Alembic integrados.
+
+**Tarefas:**
 - **003 Backend: reorganização + hardening base (sem Postgres).** Mover para `app/`; `core/config.py` com pydantic-settings lendo `.env`; CORS por `.env` e restrito; middleware de cabeçalhos de segurança; limite de corpo e tratamento de erros; `pyproject.toml` + ruff/mypy/pytest; `requirements-dev.txt`; venv com Python 3.12/3.13; atualizar o pin do FastAPI; testes de `/health` e dos cabeçalhos; `.gitignore` ampliado.
 - **004 Frontend e raiz.** Remover boilerplate; estrutura `src/`; renomear pacote; versionar lockfile; cabeçalhos de segurança no `next.config`; `.editorconfig`; `infra/docker-compose.yml` (PostgreSQL, MinIO, Mailpit — preparado, sem subir); CI; Dependabot; gitleaks (pre-commit); ADR-001 a 006.
 - **005 PostgreSQL + SQLAlchemy 2 + Alembic.** Sessão/engine, `Base`, primeira migração (`users`, `sessions`, `audit_log`), testes de integração com PostgreSQL em contêiner.
 
+**Critérios do marco:** instalação e execução local reproduzíveis conforme a documentação; migrações e testes de integração do banco passam; CI executa as verificações definidas para backend e frontend.
+
 > A tarefa 003 original cobria backend, frontend e raiz juntos. Foi dividida em 003 e 004 para manter tarefas pequenas e revisáveis.
 
-### Fase 1 — Identidade e acesso
+### M1 — Identidade e acesso (006–009)
+
+**Entregáveis:** acesso seguro de admin e cliente, autorização por papel e recurso, 2FA para admin e consentimento inicial.
+
+**Tarefas:**
 - **006** Login do admin (seed por CLI), sessão, logout, argon2id, bloqueio progressivo, rate limit, CSRF.
 - **007** RBAC, autorização por recurso, testes de IDOR, `audit_log`, logging com id de requisição.
 - **008** 2FA TOTP para admin e recuperação.
 - **009** Acesso do cliente (link mágico de uso único e/ou PIN — decisão D-05) e consentimento inicial.
 
-### Fase 2 — Galerias e fotos
+**Critérios do marco:** fluxos de acesso funcionam conforme os papéis; testes cobrem não autenticado, papel incorreto e acesso a recurso alheio nas rotas protegidas.
+
+### M2 — Galerias e fotos (010–014)
+
+**Entregáveis:** ciclo seguro de upload, processamento, publicação e acesso às prévias, com expiração automatizada.
+
+**Tarefas:**
 - **010** Storage S3 (MinIO no dev), upload assinado e validações.
 - **011** Worker de imagens: derivados, marca d'água, `taken_at`, limites.
 - **012** CRUD de galerias (admin), publicar, prazo de 3 dias.
 - **013** Galeria do cliente (API e tela): grade, tela cheia, favoritos.
 - **014** Rotina de expiração e e-mails de lembrete.
 
-### Fase 3 — Álbuns
+**Critérios do marco:** o ciclo upload → processamento → publicação → visualização autorizada → expiração é validado; os originais permanecem privados e inacessíveis antes do pagamento.
+
+### M3 — Álbuns (015–017)
+
+**Entregáveis:** seleção de fotos convertida em álbum montável, prova para o cliente e pacote de produção.
+
+**Tarefas:**
 - **015** Modelo de álbum, tamanhos e seleção do cliente.
 - **016** Montagem: ordenação, lâminas, ilustração do layout.
 - **017** Prova e aprovação do cliente; exportação para o montador.
 
-### Fase 4 — Pagamento
+**Critérios do marco:** limites e transições do álbum são validados no servidor; prova, aprovação e exportação correspondem à seleção e à ordem final.
+
+### M4 — Pagamento e entrega (018–019)
+
+**Entregáveis:** pedido pago via Pix e entrega dos originais autorizada e auditável.
+
+**Tarefas:**
 - **018** Pedido + Pix (provedor D-01) + webhook assinado e idempotente.
 - **019** Liberação dos originais (URLs assinadas curtas + registro de downloads).
 
-### Fase 5 — Site e identidade visual (pode começar após a 013)
+**Critérios do marco:** integração validada no ambiente de testes do provedor escolhido; assinatura e idempotência do webhook verificadas; downloads liberados apenas após confirmação do pagamento e registrados.
+
+### M5 — Site e experiência visual (020–022)
+
+**Entregáveis:** identidade visual aprovada, site institucional e experiência coerente no desktop, celular e áreas logadas.
+
+**Tarefas:**
 - **020** Briefing visual, design tokens e layout base (usar a skill `frontend-design`).
 - **021** Páginas: home, portfólio, serviços, sobre, contato.
 - **022** Áreas logadas (admin e cliente) com a mesma identidade; acessibilidade e desempenho.
 
-### Fase 6 — LGPD operacional e pré-lançamento
+**Critérios do marco:** páginas e áreas previstas são responsivas e acessíveis; tipo, lint e build passam; páginas legais, quando publicadas, passam pela revisão jurídica aplicável.
+
+**Dependência e paralelismo:** pode começar após a tarefa 013 e avançar em paralelo com M3 e M4, sem alterar os critérios de segurança e autorização das áreas logadas.
+
+### M6 — LGPD e pré-lançamento (023–025)
+
+**Entregáveis:** direitos do titular e retenção operacionalizados; segurança, recuperação e operação preparadas para lançamento.
+
+**Tarefas:**
 - **023** Páginas legais, consentimentos finais, direitos do titular (exportar/excluir), retenção.
 - **024** Revisão de segurança por modelo diferente, testes de abuso, auditoria de dependências, checklist OWASP ASVS.
 - **025** Backups com teste de restauração, monitoramento, runbook de incidente, deploy (VPS + Cloudflare), checklist de go-live.
+
+**Critérios do marco:** solicitações LGPD e retenção são exercitáveis; restauração de backup foi testada; revisão de segurança e checklist de lançamento não têm bloqueios abertos. Este marco é o gate de lançamento.
+
+### Dependências e gates de decisões
+
+| Dependência ou decisão | Marco/tarefas afetados |
+|---|---|
+| M0 → M1 → M2 | Sequência principal da fundação até galerias acessíveis. |
+| M2, após fluxo da tarefa 013 → M3 | A montagem depende da seleção do cliente disponível. |
+| M3 → M4 | Pagamento e liberação dependem do fluxo de álbum definido. |
+| Tarefa 013 → M5 | Site e identidade podem avançar em paralelo após a galeria do cliente. |
+| M1–M5 → M6 | Pré-lançamento integra os fluxos necessários e bloqueia go-live até concluir. |
+| D-01 | M4 / tarefa 018: provedor de Pix. |
+| D-02 | M2 / tarefa 010: storage de produção. |
+| D-03 | M1 / tarefa 009 e M2 / tarefa 014: e-mail transacional e lembretes. |
+| D-04 | M6 / tarefa 025: hospedagem e domínio. |
+| D-05 | M1 / tarefa 009: forma de acesso do cliente. |
+| D-06 | M3 / tarefa 015: tamanhos e regras de álbum. |
+| D-07 | M2 / tarefa 014, M4 / tarefa 019 e M6 / tarefa 023: retenção e prazo de download. |
+| D-08 | M6 / tarefa 023: encarregado e autorização de imagem. |
+| D-09 | M5 / tarefa 020: shadcn/ui e identidade visual. |
+| D-10 | M1 / tarefa 007: papel do montador. |
+| D-11 | M6 / tarefa 023: revisão jurídica. |
+
+As tarefas 003B–003E são itens auxiliares de hardening, configuração e processo acompanhados separadamente na seção 18; não mudam a alocação das tarefas de produto acima.
 
 ---
 
@@ -429,6 +500,7 @@ Sem autenticação/autorização; sem cabeçalhos de segurança; sem rate limiti
 | 003B | Hardening restante e atualização de pins | concluída |
 | 003C | Agentes, skills, MCPs e permissões | concluída e validada |
 | 003D | Agente revisor geral de alterações | tarefa preparada; execução pendente de aprovação |
+| 003E | Marcos de entrega do produto | concluída; proposta aprovada e registrada |
 | 004 | Frontend e raiz | pendente |
 | 005 | PostgreSQL + SQLAlchemy + Alembic | pendente |
 | 006–009 | Identidade e acesso | pendente |
@@ -437,3 +509,17 @@ Sem autenticação/autorização; sem cabeçalhos de segurança; sem rate limiti
 | 018–019 | Pagamento | pendente |
 | 020–022 | Site e identidade visual | pendente |
 | 023–025 | LGPD operacional e pré-lançamento | pendente |
+
+### Status dos marcos
+
+| Marco | Tarefas | Status |
+|---|---|---|
+| M0 — Fundação técnica | 003–005 | em andamento; 003 concluída, 004–005 pendentes |
+| M1 — Identidade e acesso | 006–009 | pendente |
+| M2 — Galerias e fotos | 010–014 | pendente |
+| M3 — Álbuns | 015–017 | pendente |
+| M4 — Pagamento e entrega | 018–019 | pendente |
+| M5 — Site e experiência visual | 020–022 | pendente |
+| M6 — LGPD e pré-lançamento | 023–025 | pendente |
+
+As tarefas auxiliares 003B–003E têm status individual acima e não alteram o estado dos marcos de produto; a execução da 003D continua dependendo de aprovação específica.
