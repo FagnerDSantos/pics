@@ -1,7 +1,6 @@
-from fastapi.testclient import TestClient
-
 from app.core.config import get_settings
 from app.main import app
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -35,3 +34,18 @@ def test_security_headers() -> None:
 
     for header, value in SECURITY_HEADERS.items():
         assert response.headers[header] == value
+
+
+def test_oversized_request_body_is_rejected_with_security_headers() -> None:
+    response = client.post("/", content=b"x" * (1024 * 1024 + 1))
+
+    assert response.status_code == 413
+    assert response.json() == {"detail": "Request body too large"}
+    for header, value in SECURITY_HEADERS.items():
+        assert response.headers[header] == value
+
+
+def test_request_body_at_limit_reaches_route() -> None:
+    response = client.post("/", content=b"x" * (1024 * 1024))
+
+    assert response.status_code == 405
