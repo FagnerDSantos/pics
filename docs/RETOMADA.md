@@ -8,7 +8,8 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 - Tarefa 003B (hardening restante) concluída e validada; commit `6ac5929 fix: conclui hardening restante do backend`.
 - Este mecanismo de checkpoint foi registrado no commit `a8ffb50 docs: adiciona checkpoint de retomada`.
 - Validações 003B: Python 3.12.7; FastAPI 0.141.1, Pydantic 2.13.5 e Uvicorn 0.52.4; `ruff check app tests`, `mypy app`, `pytest` (8 passaram) e `git diff --check` aprovados. O pytest mostrou um aviso não bloqueante de depreciação do TestClient/Starlette.
-- Tarefa 003C corrigida e validada nesta sessão; commit de fechamento pendente. A tarefa 003D (agente revisor geral) foi preparada; execução é etapa separada.
+- Tarefa 003C corrigida e validada no commit `7956c51 fix: endurece configuração dos agentes OpenCode`.
+- Tarefa 003D (`docs/tasks/003D-change-reviewer.md`) preparada e registrada; o agente ainda não foi implementado. A implementação fica para tarefa separada após aprovação.
 
 ## Avaliação da estrutura
 
@@ -25,10 +26,10 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 
 ## Alterações locais preservadas
 
-Para o commit da 003C estão staged somente os arquivos da tarefa: renomes de skills, agente revisor de segurança, `CLAUDE.md`, `opencode.json`, plano e documentos de tarefa/revisão. Permanecem fora desse commit o modelo escolhido anteriormente no `opencode.json` (será restaurado como mudança não staged após o commit), o plugin local de fallback de modelo, `docs/tasks/003D-change-reviewer.md` e o backup `opencode.json.pre-go-fallback.bak`.
+O commit 003C está fechado. Permanece como alteração local a escolha de modelos `opencode-go/gpt-6-luna` em `opencode.json`, restaurada após o commit e mantida fora dele. Os arquivos do plugin local de fallback, seu teste e `opencode.json.pre-go-fallback.bak` também continuam sem commit; não os descartar nem incluir em outro commit sem revisão explícita. A tarefa 003D e a atualização correspondente do plano/checkpoint estão sendo registradas em commit documental separado.
 
 ## Próximos passos
 
-1. Fechar a 003C em commit isolado e restaurar a alteração preexistente de modelo, mantendo-a fora do commit da tarefa.
-2. Commitar a tarefa preparada `docs/tasks/003D-change-reviewer.md` separadamente; sua execução fica para aprovação/tarefa posterior.
-3. Após a conversa de escopo, atualizar o plano mestre apenas com a decisão acordada.
+1. Discutir e decidir os blocos do escopo do produto; só então atualizar o plano mestre.
+2. Aprovar a execução da tarefa 003D antes de criar o agente `change-reviewer`.
+3. Revisar o risco de privacidade e decidir se o plugin local de fallback pode reenviar prompts a outros provedores.
