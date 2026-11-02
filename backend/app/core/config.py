@@ -1,12 +1,6 @@
 import os
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
-
-from dotenv import load_dotenv
-
-BACKEND_DIR = Path(__file__).resolve().parents[2]
-load_dotenv(BACKEND_DIR / ".env")
 
 DEFAULT_CORS_ORIGINS = "http://localhost:3000"
 DEFAULT_APP_VERSION = "0.1.0"

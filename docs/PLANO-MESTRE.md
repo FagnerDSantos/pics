@@ -562,7 +562,7 @@ Usar provedor com **subcontas e divisão de pagamento**, para que o dinheiro do 
 | 001–002 | Etapas anteriores (ver `docs/tasks/`) | concluídas (confirmar) |
 | 003 | Backend: reorganização + hardening base | pendente |
 | 004 | Frontend e raiz | pendente |
-| 005 | PostgreSQL + SQLAlchemy + Alembic multi-tenant | pendente |
+| 005 | PostgreSQL + SQLAlchemy + Alembic multi-tenant | concluída |
 | 006–009 | Identidade e acesso | pendente |
 | 010–015 | B1: galerias e fotos | pendente |
 | 016–020 | B1: cobrança, pagamento, pré-beta e beta | pendente |
