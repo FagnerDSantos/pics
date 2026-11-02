@@ -9,13 +9,13 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 - Validações 004: `npm ci`, `npm run lint`, `npm run typecheck`, `npm run build`, `ruff check app tests`, `mypy app`, `pytest` (8 passaram), `npm audit --audit-level=high`, análise YAML do Compose com PyYAML e `git diff --check` passaram. `npm audit` completo encontrou 16 vulnerabilidades moderadas em dependências de desenvolvimento; `npm audit --omit=dev` encontrou zero e `npm audit fix --dry-run` não ofereceu correção compatível. Nenhuma dependência foi atualizada. Fagner aprovou o limiar de CI alto/crítico. `docker compose config` bloqueado porque Docker CLI não está instalado; nenhum container foi iniciado ou baixado.
 - Após autorização para pausar, a prévia foi reiniciada em `http://127.0.0.1:3000`; smoke check respondeu HTTP 200, `lang=pt-BR` e headers de segurança.
 - Configuração Docker solicitada: ambiente bloqueado porque Docker Desktop/CLI e WSL não estão instalados, a sessão não é administradora e o firmware informa virtualização desativada. Diagnóstico e procedimento em `docs/tasks/004B-configurar-docker-local.md` e `docs/reviews/004B-configurar-docker-local.md`; nada foi instalado nem iniciado.
-- O ambiente bloqueia `git commit`; nenhum `git add` ou `git commit` foi executado. Relatório da tarefa: `docs/reviews/004-frontend-e-raiz.md`.
-- Fagner solicitou publicar o projeto no Git. Verificação: branch `master` está 8 commits à frente de `origin/master`, com alterações locais ainda não commitadas. Esta sessão não conseguiu executar commit/push por restrição da ferramenta; o fallback OpenCode e seu backup seguem preservados e não devem ser publicados sem revisão explícita do risco registrado abaixo.
+- Publicação concluída: commit `3aea2c8 chore: publica progresso da fundacao Pics` enviado para `origin/master`; branches sincronizadas. Relatório da tarefa: `docs/reviews/004-frontend-e-raiz.md`.
+- Permanecem no working tree apenas a configuração local `opencode.json`, os arquivos do plugin de fallback e seu backup; não foram incluídos no commit por exigirem revisão explícita do risco de reenvio de prompts.
 - Tarefa 004A (`docs/tasks/004A-tela-demonstrativa.md`) concluída: prévia responsiva em pt-BR, com indicadores fictícios e sem ações conectadas. `frontend/src/app/layout.tsx` contém idioma e metadados descritivos; a página ganhou atalho de teclado ao conteúdo principal e ajustes de contraste/foco. Revisão registrada em `docs/reviews/004A-tela-demonstrativa.md`.
 - Prévia local disponível em `http://127.0.0.1:3000`; smoke check HTTP 200 confirmou HTML, idioma e conteúdo demonstrativo. Inspeção visual em viewports ainda não realizada.
 - Arquivos desta tarefa: `frontend/src/app/page.tsx`, `frontend/src/app/globals.css`, `frontend/src/app/layout.tsx`, `docs/tasks/004A-tela-demonstrativa.md`, `docs/reviews/004A-tela-demonstrativa.md` e este checkpoint. Alterações locais OpenCode foram preservadas.
 - Validações da tarefa 004A: `npm run lint`, `npm run build` e `git diff --check` aprovados. Lint/build emitiram apenas o aviso do npm sobre `msvs_version` em configuração local.
-- O ambiente bloqueia `git commit`; nenhum commit foi criado para esta tarefa.
+- As alterações da tarefa 004A também estão incluídas no commit publicado `3aea2c8`.
 - Projeto: `C:\desenvolvimento\pics`, branch `master`.
 - Tarefa 003B (hardening restante) concluída e validada; commit `6ac5929 fix: conclui hardening restante do backend`.
 - Este mecanismo de checkpoint foi registrado no commit `a8ffb50 docs: adiciona checkpoint de retomada`.
@@ -48,7 +48,7 @@ Os commits 003C e da tarefa preparada 003D estão fechados. Permanecem no workin
 
 ## Próximos passos
 
-1. Retomar publicação em uma sessão com permissão para `git commit`/`git push`; revisar explicitamente se os arquivos locais do fallback devem ser excluídos ou publicados.
+1. Revisar e decidir se o plugin local de fallback pode permanecer e se suas alterações devem ser publicadas.
 2. Habilitar AMD SVM/AMD-V no firmware e disponibilizar sessão Windows administrativa; então instalar/configurar WSL 2 e Docker Desktop, validar `docker compose config`, concluir 004 e executar 005.
 3. Aprovar a execução da tarefa 003D antes de criar o agente `change-reviewer`, se desejado.
 4. Reiniciar o cliente OpenCode para carregar a configuração 003C; o processo/sessão atual não pode reiniciar a si próprio com segurança.
