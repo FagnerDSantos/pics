@@ -44,6 +44,7 @@ Diagnóstico atual: 5 skills em `.opencode/skills/*.md` não são carregadas (o 
 5. `git status` → apenas os arquivos permitidos alterados.
 
 ## Relatório do executor (preenchido pelo OpenCode)
-- O que foi feito:
-- Arquivos alterados:
-- Dúvidas ou riscos:
+- O que foi feito: as cinco skills foram movidas para `.opencode/skills/<nome>/SKILL.md`; existe o agente `security-reviewer`; `CLAUDE.md` lista os agentes. A auditoria posterior encontrou divergências que impedem marcar a tarefa como concluída: os dois MCPs estão habilitados; `permission.skill` e as regras planejadas de `build` não aparecem em `opencode.json`; `*.env.example` não tem exceção final; as negações de edição não estão declaradas no escopo do projeto; `security-reviewer` está em `mode: all`, embora o critério peça `subagent`.
+- Arquivos da tarefa: `.opencode/skills/agent-superpowers/SKILL.md`, `.opencode/skills/cloudflare-security-audit/SKILL.md`, `.opencode/skills/gsap-animation-guidelines/SKILL.md`, `.opencode/skills/lgpd-brazil-compliance/SKILL.md`, `.opencode/skills/vercel-web-interface-guidelines/SKILL.md`, `.opencode/agent/security-reviewer.md`, `opencode.json`, `CLAUDE.md`.
+- Validações desta auditoria: diretório contém cinco skills com nomes/frontmatter correspondentes; `opencode agent list` carrega `security-reviewer` e mostra `build` com permissão ampla herdada (`* allow`). `opencode mcp list` não foi executado porque os MCPs estão habilitados e usam `npx -y`, que pode baixar/executar pacotes. A listagem anterior que dizia estarem desligados não corresponde ao `opencode.json` atual. Origem confirmada por documentação: shadcn oficial usa o CLI `shadcn`; o pacote configurado `shadcn-ui-mcp-server` é comunitário; `chrome-devtools-mcp` é o pacote oficial do Chrome DevTools.
+- Pendências/riscos: não ativar os MCPs até corrigir a configuração e aprovar a origem/pacote; rever permissões de build e privacidade; decidir se `security-reviewer` deve ser subagent ou também agente primário. Esta tarefa continua pendente de correção.

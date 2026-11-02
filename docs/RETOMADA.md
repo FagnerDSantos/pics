@@ -8,7 +8,7 @@ Atualizado em 2026-11-01. Este arquivo é o checkpoint curto do projeto; leia-o 
 - Tarefa 003B (hardening restante) concluída e validada; commit `6ac5929 fix: conclui hardening restante do backend`.
 - Este mecanismo de checkpoint foi registrado no commit `a8ffb50 docs: adiciona checkpoint de retomada`.
 - Validações 003B: Python 3.12.7; FastAPI 0.141.1, Pydantic 2.13.5 e Uvicorn 0.52.4; `ruff check app tests`, `mypy app`, `pytest` (8 passaram) e `git diff --check` aprovados. O pytest mostrou um aviso não bloqueante de depreciação do TestClient/Starlette.
-- Próxima frente: auditoria/correção da tarefa 003C (agentes, skills, MCPs e permissões), antes de iniciar a tarefa 004.
+- Próxima frente: corrigir os critérios pendentes da tarefa 003C (agentes, skills, MCPs e permissões), antes de iniciar a tarefa 004.
 
 ## Avaliação da estrutura
 
@@ -29,6 +29,6 @@ Após o commit 003B, permanecem no working tree alterações pendentes da 003C e
 
 ## Próximos passos
 
-1. Criar uma tarefa de correção/auditoria 003C com os problemas acima e alinhar `docs/tasks/003C-agentes-skills-mcps.md` e sua revisão com a configuração real.
-2. Com aprovação, corrigir permissões e MCPs; validar o JSON e a lista de agentes; validar skills com prompt fictício; somente testar servidores MCP após confirmar os pacotes e manter dados fictícios.
-3. Propor e aprovar a criação do agente de revisão geral. O coordenador deve continuar executando testes/lint e fornecer o diff ao agente revisor; agente revisor não edita nem executa comandos.
+1. Com aprovação, corrigir os critérios ainda não atendidos na tarefa 003C; os documentos da tarefa e da revisão já foram corrigidos para refletir a auditoria real.
+2. Validar JSON e agentes após a correção; validar skills com prompt fictício; testar servidores MCP somente após confirmar a origem e manter MCPs desligados por padrão.
+3. Criar uma tarefa para o agente geral `change-reviewer`. O coordenador continuará executando testes/lint e fornecendo diff + critérios ao revisor; o agente revisor não edita nem executa comandos.
