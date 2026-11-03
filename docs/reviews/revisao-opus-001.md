@@ -91,4 +91,11 @@ Entrevista: teto de US$ 50/mês; falhas anteriores = lentidão e código de baix
 2. **Tarefa 005C, alinhamento de documentos** (Sonnet, só docs): roadmap com 005B e a quebra de 007/012/016; §10 com `refunds`, campos de retenção e classificação de `webhook_events`; D-27 a D-32; RETOMADA enxuta; linha de checks do `CLAUDE.md`; skill ajustada; ADR-007 em proposta.
 3. **005B revisada** (Sonnet + `postgres-dba`): incluir C2 (lookup pré-contexto), aprovar e implementar. Depois disso, a Etapa 0 fecha e começa a 006.
 
+## 7. Aplicado em 03/11/2026 (autorizado pelo Fagner: plano, CLAUDE.md, agentes)
+- `docs/PLANO-MESTRE.md` → v3.1: C1 (005/005B no roadmap e no status), C2 (§8 regra 8, classificação no §10, S-40), A1/A2 (§4.2 cancelamento, §4.3 estorno, §4.7, `refunds`, S-41), A3 (007a/b, 012a/b, 016a/b), A4 (plano padrão semeado, Mailpit na 009, D-03 antes da 021), A5 (campos de retenção, recontagem de `studio_usage`), A6 (ordem das ADRs), M1–M9, D-27 a D-32, riscos novos, §15 com ferramenta única.
+- `CLAUDE.md`: ferramenta única, checks reais, regra de pré-contexto, estorno, `.env` por qualquer ferramenta, commit só dos arquivos da tarefa, esforço `medium`.
+- `.claude/agents/`: `change-reviewer` e `security-reviewer` com `NotebookEdit` bloqueado e Bash restrito a leitura; `postgres-dba` com `tools: Read, Grep, Glob` e checagens de RLS forçada e `SECURITY DEFINER`. `Explore` sem mudança.
+- `docs/RETOMADA.md` reescrita; o histórico foi para `docs/reviews/historico-retomada-ate-2026-11-02.md`.
+- **Não aplicado** (fora do pedido): `~/.claude/settings.json`, `.claude/settings.json`, skill `economia-de-tokens`, remoção dos arquivos do OpenCode (D-31).
+
 > Fagner: ao terminar de ler, rode `/clear` e depois `/model sonnet`.
