@@ -7,7 +7,19 @@
       "Read(**/.env.development)",
       "Read(**/.env.production)",
       "Read(**/.env.test)",
-      "Read(./secrets/**)"
+      "Read(./secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(cat *.env*)",
+      "Bash(type *.env*)",
+      "Bash(*printenv*)",
+      "PowerShell(Get-Content *.env*)",
+      "PowerShell(gc *.env*)",
+      "PowerShell(cat *.env*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "PowerShell(git push*)"
     ]
   },
   "env": {

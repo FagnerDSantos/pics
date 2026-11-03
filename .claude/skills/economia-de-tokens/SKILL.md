@@ -23,7 +23,8 @@ Quem digita `/clear`, `/compact` e `/model` é o Fagner. Quando perceber um sina
 | Precisa voltar depois a uma conversa | `/rename nome` antes do `/clear`; depois `/resume` |
 
 Evite: `/compact` depois de uma pausa longa (é uma requisição enorme sem cache), `/compact` logo antes de um `/clear`, e deixar uma sessão aberta o dia todo. **Uma tarefa = uma sessão.**
-Mudanças no `CLAUDE.md` só valem a partir do próximo `/clear` ou reinício.
+Mudanças no `CLAUDE.md` raiz só valem após `/clear`, `/compact` ou reinício.
+Pausas longas e previsíveis: cache de 1 h (`promptCacheTtl: "1h"`) custa mais para gravar; só vale se você volta à mesma sessão em menos de 1 h com frequência. Padrão: não usar.
 
 ## 2. Qual modelo usar
 
@@ -51,7 +52,7 @@ Só se **um** destes for verdadeiro:
 Não use `opusplan`: ele troca de modelo a cada entrada e saída do modo plan e perde o cache toda vez.
 
 ### Esforço (`/effort`)
-No Haiku, Sonnet e Opus 5.5, com chave de API, trocar o esforço mantém o cache. `low` para tarefa mecânica, `medium` no dia a dia, `high` só ao planejar algo complexo. Evite `xhigh` e `max`. O raciocínio estendido não pode ser desligado nesses modelos; o esforço é a alavanca.
+No Haiku, Sonnet e Opus 5.5, com chave de API, trocar o esforço mantém o cache. `low` para tarefa mecânica, `medium` no dia a dia, `high` só ao planejar algo complexo. Evite `xhigh` e `max`. `CLAUDE_CODE_EFFORT_LEVEL` em settings sobrepõe `/effort`; não defina essa variável. Padrão do projeto: `medium`. O raciocínio estendido não pode ser desligado nesses modelos; o esforço é a alavanca.
 
 ## 3. Hábitos que economizam
 
@@ -62,7 +63,7 @@ No Haiku, Sonnet e Opus 5.5, com chave de API, trocar o esforço mantém o cache
 - **Filtre antes de colar:** `| tail -50`, `grep`, só as falhas.
 - **Teste em incrementos:** um arquivo, roda, segue.
 - **Interrompa cedo:** `Esc` assim que ele ler o que não devia ou for pelo caminho errado.
-- **Medir:** `/context` mostra o que pesa; `/usage` mostra custo e acerto de cache.
+- **Medir:** `/context` mostra o que pesa; `/usage` mostra custo e acerto de cache. Meça na 1ª semana com `/usage`. Se a projeção passar de US$ 50/mês, avalie a assinatura Claude (Pro/Max) em vez da API (D-30).
 - **MCPs:** desligue os que não está usando (`/mcp`); prefira CLI (`git`, `gh`) a MCP.
 - **CLAUDE.md curto** (menos de 200 linhas). Instrução de fluxo específico vai para skill.
 
