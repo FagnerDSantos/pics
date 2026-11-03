@@ -2,6 +2,38 @@
 
 Atualizado em 2026-11-02. Este arquivo é o checkpoint curto do projeto; leia-o antes de retomar, junto com `CLAUDE.md` e `docs/PLANO-MESTRE.md`. Atualize-o ao concluir ou pausar uma tarefa. Não precisa guardar o histórico inteiro do chat.
 
+## Registro da revalidação Docker/PostgreSQL 005 e rascunho 005B — 2026-11-02
+
+- `CLAUDE.md`, `docs/PLANO-MESTRE.md` e `docs/RETOMADA.md` foram lidos integralmente antes desta atualização.
+- Revalidação Docker/PostgreSQL da tarefa 005 executada com sucesso, sem alterar schema multi-tenant, sem instalar software, sem ler `.env`/segredos/dados reais/fotos e sem `git add`/`commit`/`push`/`--auto`.
+- Docker Desktop existente foi iniciado sem instalação; engine respondeu (`docker info`) e o Compose está funcional.
+- Ambiente isolado `pics-task005` foi criado com PostgreSQL 16 (`postgres:16-alpine`), banco `pics_test`, escuta em loopback (`127.0.0.1:5432`), credenciais sintéticas e volume dedicado.
+- Ciclo de migrações executado no backend com `DATABASE_URL` sintético:
+  - `alembic upgrade head`: EXIT_CODE=0 (`0001_initial` e `0002_audit_log_append_only` aplicadas).
+  - `alembic downgrade base`: EXIT_CODE=0.
+  - `alembic upgrade head`: EXIT_CODE=0.
+- Testes de integração PostgreSQL executados sem skip:
+  - `pytest -v -ra tests/test_database.py`: `1 passed` (EXIT_CODE=0).
+  - `pytest -v -ra` (completo): `9 passed, 1 warning` (EXIT_CODE=0).
+- Qualidade no backend (`.venv`): `ruff check app tests` = EXIT_CODE=0; `mypy app` = EXIT_CODE=0 (`Success: no issues found in 20 source files`).
+- Limpeza: `docker compose -p pics-task005 down -v` removeu o container `pics-task005-postgres`, o volume `pics_task005_postgres_data` e a network do projeto. O arquivo Compose temporário também foi removido. Verificação posterior: `docker ps --all`, `docker volume ls` e `docker compose ls --all` não listam recursos do projeto `pics-task005`.
+- Estado do Docker engine ao final: ativo e respondendo (`docker info` bem-sucedido; versão do servidor `29.9.2`).
+- `gh` continua ausente no PATH; CI remoto do commit `d10b2ad` não foi verificado.
+- Consulta textual DBA foi concluída e registrada como recomendação consultiva, sem implementação. Os pontos do DBA (RLS fail-closed, `WITH CHECK` sem `NULL`, role runtime sem `BYPASSRLS`, contexto `SET LOCAL` bind-safe, testes A/B) foram incorporados como decisões pendentes no rascunho 005B.
+- Criado rascunho de spec em `docs/tasks/005B-fundacao-multi-tenant-rls.md` com status `DRAFT — NÃO APROVADA`, classificação das tabelas, decisões de schema/roles/policies/contexto e critérios de aceite. A spec aguarda aprovação explícita do usuário.
+- Não foi alterado código, configuração, schema, role, policy, banco de dados real, `.env`, segredo ou dado pessoal. Nenhum commit/push foi feito.
+
+### Decisão
+
+- **Fase 0: NO-GO.** A integração PostgreSQL + SQLAlchemy 2 + Alembic foi revalidada localmente com sucesso, a consulta DBA foi concluída e o rascunho 005B foi preparado, mas o multi-tenant/RLS ainda não está implementado nem aprovado.
+
+### Próximo passo
+
+1. O usuário revisar e aprovar explicitamente `docs/tasks/005B-fundacao-multi-tenant-rls.md`, especialmente as decisões de classificação, roles/privilégios e policies RLS.
+2. Somente após aprovação, o agente `build` pode implementar a migração 0003, models, helper de contexto, roles/policies e testes sintéticos.
+3. Verificar CI remoto do commit `d10b2ad` via `gh` somente após instalação/autenticação autorizada, ou por acesso web equivalente.
+4. Manter reconciliações 003D/003F pendentes até specs/aprovações separadas.
+
 ## Último ponto confirmado
 
 - Tarefa 004 concluída e aprovada: pacote `pics-frontend` e lockfile para as dependências declaradas; typecheck e headers de segurança; Compose local para PostgreSQL, MinIO e Mailpit; CI com `npm ci`, lint, typecheck, build, auditoria npm com limiar alto/crítico e Gitleaks; Dependabot, hook Gitleaks, seis ADRs em proposta e README atualizado. `.editorconfig` e `.gitignore` existentes já cobriam o escopo.
@@ -82,3 +114,13 @@ Os commits 003C e da tarefa preparada 003D estão fechados. Permanecem no workin
 - Validações: `opencode debug config`, `opencode debug agent`, assertions de modelos/permissões e `git diff --check` passaram. A primeira execução longa de `build` expirou após 300s sem mensagem final; o coordenador repetiu as validações relevantes, e a chamada curta de correção do prompt retornou com sucesso. Sem testes de produto (não aplicáveis).
 - Revisão independente em `docs/reviews/003H-modelos-e-orquestrador-opencode.md`: achado baixo do prompt foi corrigido; a pendência documental apontada na revisão final foi resolvida com este checkpoint e o relatório. Working tree já continha alterações não relacionadas, preservadas; sem commit/push.
 - Próximo passo: reiniciar/abrir uma nova sessão OpenCode para clientes/TUIs recarregarem a configuração e usar o `orchestrator` como agente padrão.
+
+## Mudança de modelo do orchestrator para Claude Opus 5.5 — pausada — 2026-11-02
+
+- Solicitação para alterar o modelo do `orchestrator` de `opencode-go/gpt-6-luna` para Claude Opus 5.5 foi registrada e pausada.
+- Modelo atual em `.opencode/agent/orchestrator.md:4` permanece `opencode-go/gpt-6-luna`; modelo global em `opencode.json:4` não será alterado.
+- Catálogo consultado mostrou o ID `opencode/claude-opus-5-5` no OpenCode Console e a alternativa `anthropic/claude-opus-5-5`; o provider `opencode-go` não oferece Opus 5.5.
+- Provider/auth local não foi verificado; não foi lido arquivo de auth, segredo, `.env` ou dado pessoal.
+- Nenhuma alteração de configuração (`opencode.json`, `.opencode/agent/orchestrator.md`, prompts ou agentes) nem chamada funcional a modelo foi realizada.
+- Nenhum valor de auth/crédito foi examinado.
+- Próximo passo: o usuário escolher o provider desejado (`opencode/claude-opus-5-5`, `anthropic/claude-opus-5-5` ou outro) antes da alteração.
