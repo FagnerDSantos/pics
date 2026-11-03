@@ -9,13 +9,13 @@ Preparar o ambiente Windows para usar Docker Compose no desenvolvimento do Pics 
 - O processador é AMD Ryzen 5 5500; a opção de virtualização costuma aparecer no firmware como SVM/AMD-V.
 
 ## Critérios de aceite
-- [ ] Virtualização AMD (SVM/AMD-V) habilitada no firmware/BIOS.
-- [ ] WSL 2 instalado e operacional em sessão com privilégios de administrador.
-- [ ] Docker Desktop instalado e configurado para usar o backend WSL 2, ou runtime Docker equivalente aprovado.
-- [ ] `docker version`, `docker compose version` e `docker info` executam sem erro.
-- [ ] `docker compose --env-file .env.example -f infra/docker-compose.yml config` valida PostgreSQL, MinIO e Mailpit.
-- [ ] Não iniciar containers nem baixar imagens nesta tarefa.
-- [ ] Atualizar `docs/RETOMADA.md` e criar revisão em `docs/reviews/004B-configurar-docker-local.md`.
+- [x] Virtualização necessária ao WSL 2 está operacional; o kernel do Docker Desktop confirma WSL2.
+- [x] WSL 2 operacional (`docker-desktop` em execução, versão 2).
+- [x] Docker Desktop usa o backend WSL 2 (`desktop-linux`).
+- [x] `docker version`, `docker compose version` e `docker info` executam sem erro após iniciar o Docker Desktop.
+- [x] `docker compose --env-file .env.example -f infra/docker-compose.yml config` valida PostgreSQL, MinIO e Mailpit.
+- [x] Nenhum container ou imagem foi iniciado/baixado nesta tarefa; `docker ps --all` e `docker image ls` estão vazios.
+- [x] Atualizar `docs/RETOMADA.md` e revisar `docs/reviews/004B-configurar-docker-local.md`.
 
 ## Arquivos que podem ser alterados
 - `docs/tasks/004B-configurar-docker-local.md`
@@ -40,6 +40,6 @@ Preparar o ambiente Windows para usar Docker Compose no desenvolvimento do Pics 
 4. Executar `git diff --check`.
 
 ## Relatório do executor (preenchido pelo OpenCode)
-- O que foi feito:
-- Arquivos alterados:
-- Dúvidas ou riscos:
+- O que foi feito: Docker Desktop existente foi iniciado; WSL2 confirmou backend operacional. A configuração Compose foi validada com `.env.example`, sem iniciar containers ou baixar imagens.
+- Arquivos alterados: `docs/tasks/004B-configurar-docker-local.md`, `docs/reviews/004B-configurar-docker-local.md` e `docs/RETOMADA.md`.
+- Dúvidas ou riscos: nenhuma pendência ambiental identificada para o uso local do Docker Compose.

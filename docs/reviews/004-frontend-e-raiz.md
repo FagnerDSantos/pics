@@ -2,10 +2,8 @@
 
 ## Resultado
 
-**Ajustes necessários para fechar todos os critérios de validação.** As mudanças
-solicitadas estão implementadas e a tela 004A foi preservada. A conclusão fica
-pendente de validações que dependem do estado do ambiente e da decisão sobre as
-vulnerabilidades detectadas, sem atualizar dependências fora do escopo aprovado.
+**Aprovada.** As mudanças solicitadas estão implementadas e a tela 004A foi
+preservada. A validação Compose pendente foi concluída sem iniciar serviços.
 
 ## Verificações
 
@@ -16,7 +14,7 @@ vulnerabilidades detectadas, sem atualizar dependências fora do escopo aprovado
 | Build | `npm run build` passou após pausa autorizada da prévia; a prévia foi reiniciada depois. |
 | Auditoria npm | `npm audit --audit-level=high` passa conforme o limiar aprovado por Fagner. Auditoria completa encontrou 16 vulnerabilidades moderadas em dependências de desenvolvimento; `npm audit --omit=dev` encontrou zero. `npm audit fix --dry-run` não ofereceu correção compatível; nenhuma dependência foi alterada. |
 | Backend | `ruff check app tests`, `mypy app` passaram; `pytest` passou (8 testes, 1 aviso de depreciação). |
-| Compose | YAML do Compose analisado com PyYAML; `docker compose config` não pôde rodar porque Docker CLI não está instalado. Nenhum container/imagem foi iniciado ou baixado. |
+| Compose | `docker compose --env-file .env.example -f infra/docker-compose.yml config` passou. Nenhum container/imagem foi iniciado ou baixado. |
 | ADRs | ADR-001 a ADR-006 agora correspondem às seis decisões da seção 5 do plano mestre; todos continuam como propostas. |
 | Tela 004A | Smoke check local respondeu HTTP 200, `lang=pt-BR` e cabeçalhos de segurança após reiniciar a prévia. Arquivos da interface não foram alterados nesta tarefa. |
 | Diff | `git diff --check` passou. |
@@ -34,6 +32,6 @@ vulnerabilidades detectadas, sem atualizar dependências fora do escopo aprovado
 
 ## Próximo passo
 
-Validar `docker compose config` quando Docker CLI estiver disponível; depois disso,
-fechar a tarefa 004. Os achados moderados em dependências de desenvolvimento
-permanecem visíveis na auditoria completa, conforme limiar aprovado.
+Preparar e executar a tarefa 005 (PostgreSQL, SQLAlchemy 2 e Alembic). Os achados
+moderados em dependências de desenvolvimento permanecem visíveis na auditoria
+completa, conforme limiar aprovado.
