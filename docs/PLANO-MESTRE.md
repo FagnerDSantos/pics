@@ -499,7 +499,7 @@ B3 (site, agenda, contratos, financeiro, fila de edição): detalhar depois do b
 - **003** Backend: reorganização + hardening base (sem Postgres): `app/`, `core/config.py`, CORS por `.env`, cabeçalhos, limite de corpo e erros, `pyproject.toml` + ruff/mypy/pytest, venv, pin do FastAPI atualizado para a versão validada, testes de `/health`, `.gitignore` ampliado.
 - **004** Frontend e raiz: limpar boilerplate, estrutura `src/`, lockfile, cabeçalhos no `next.config`, `.editorconfig`, `infra/docker-compose.yml`, CI, Dependabot, gitleaks, ADR-001 a 009.
 - **005** PostgreSQL + SQLAlchemy 2 + Alembic: `users`, `sessions`, `audit_log` (somente inserção), testes de integração em contêiner. **Concluída, sem RLS** (o multi-tenant passou para a 005B).
-- **005B** Multi-tenant: ADR-007 aprovada antes; `studios`, `studio_members`, `audit_log.studio_id`, papéis de runtime e de migração (runtime sem `BYPASSRLS`), RLS fail-closed, `SET LOCAL` seguro, classificação das tabelas (§10), funções de resolução pré-contexto (§8 regra 8, S-40) e testes A/B. Spec em `docs/tasks/005B-*.md` (rascunho, aguarda aprovação).
+- **005B** Multi-tenant: ADR-007 aprovada antes; `studios`, `studio_members`, `audit_log.studio_id`, papéis de runtime e de migração (runtime sem `BYPASSRLS`), RLS fail-closed, `SET LOCAL` seguro, classificação das tabelas (§10), funções de resolução pré-contexto (§8 regra 8, S-40) e testes A/B. Spec em `docs/tasks/005B-*.md` (concluída).
 
 ### Etapa 1 — Identidade e acesso
 - **006** Login (dono e admin), sessão, logout, argon2id, bloqueio, rate limit, CSRF.
@@ -635,7 +635,7 @@ O detalhe de cada tarefa vive em `docs/RETOMADA.md`. Atualize esta tabela só qu
 
 | Etapa | Escopo | Status |
 |---|---|---|
-| 0 | 003–005B Fundação | em andamento: 003–005 concluídas; 005B aguarda aprovação (ADR-007, D-32) |
+| 0 | 003–005B Fundação | **concluída em 03/11/2026** (005B: RLS, papéis, funções de resolução; ADR-007 e D-32 aprovadas) |
 | 1 | 006–009 (com 007a/007b) Identidade e acesso | pendente |
 | 2 | 010–015 (com 012a/012b) B1 base | pendente |
 | 3 | 016a–022 B1 pagamento, edição, entrega, pré-beta e beta | pendente |

@@ -15,7 +15,11 @@ target_metadata = Base.metadata
 
 
 def get_database_url() -> str:
-    database_url = os.environ.get("DATABASE_URL")
+    # Migrações rodam como pics_migration (MIGRATION_DATABASE_URL); sem ela, usa
+    # DATABASE_URL (dev/CI com um único papel). A API nunca usa a URL de migração.
+    database_url = os.environ.get("MIGRATION_DATABASE_URL") or os.environ.get(
+        "DATABASE_URL"
+    )
     if not database_url:
         raise RuntimeError("DATABASE_URL must be set in the process environment.")
     return database_url

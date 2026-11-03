@@ -29,35 +29,35 @@ Criar a base multi-tenant no banco PostgreSQL para a plataforma Pics: tabelas `s
 
 Antes de qualquer implementação, o usuário deve aprovar cada item:
 
-- [ ] Confirmar a classificação acima (global/tenant/mista) e o fato de `audit_log.studio_id` aceitar `NULL` para eventos da plataforma.
-- [ ] Escolher a PK/unique de `studio_members`: `(studio_id, user_id)` como PK composta, ou surrogate `id` com unique composta `(studio_id, user_id)`.
-- [ ] Definir a role de migração (`pics_migration` ou similar) e se ela pode ter `BYPASSRLS` e/ou ownership dos objetos. Recomendação técnica: role de migração separada, não usada pela aplicação; `BYPASSRLS` é uma opção, não decisão.
-- [ ] Definir a role de runtime (`app_runtime` ou similar): sem `SUPERUSER`, sem `BYPASSRLS`, não owner das tabelas, com grants mínimos explícitos (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `USAGE`, `SEQUENCE`) apenas nos objetos aprovados.
-- [ ] Definir as policies RLS: `ENABLE ROW LEVEL SECURITY` + `FORCE ROW LEVEL SECURITY` nas tabelas tenant; comportamento quando `app.studio_id` está ausente, vazio ou inválido (leitura retorna vazio vs erro; escrita deve retornar erro). Recomendação técnica: fail-closed — leitura vazia, escrita erro.
-- [ ] Decidir se o enforcement de membership (por exemplo, `studio_members.role IN ('studio_owner', 'studio_member', 'assembler')` e FK para `studios`/`users`) será implementado nesta fase ou deferido para a tarefa 007 (RBAC e autorização).
-- [ ] Aprovar a estratégia de backup/rollback: aplicação das migrações somente no banco descartável `pics_test`; nenhuma alteração em produção, staging ou banco com dados reais.
+- [x] Confirmar a classificação acima (global/tenant/mista) e o fato de `audit_log.studio_id` aceitar `NULL` para eventos da plataforma.
+- [x] Escolher a PK/unique de `studio_members`: `(studio_id, user_id)` como PK composta, ou surrogate `id` com unique composta `(studio_id, user_id)`.
+- [x] Definir a role de migração (`pics_migration` ou similar) e se ela pode ter `BYPASSRLS` e/ou ownership dos objetos. Recomendação técnica: role de migração separada, não usada pela aplicação; `BYPASSRLS` é uma opção, não decisão.
+- [x] Definir a role de runtime (`app_runtime` ou similar): sem `SUPERUSER`, sem `BYPASSRLS`, não owner das tabelas, com grants mínimos explícitos (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `USAGE`, `SEQUENCE`) apenas nos objetos aprovados.
+- [x] Definir as policies RLS: `ENABLE ROW LEVEL SECURITY` + `FORCE ROW LEVEL SECURITY` nas tabelas tenant; comportamento quando `app.studio_id` está ausente, vazio ou inválido (leitura retorna vazio vs erro; escrita deve retornar erro). Recomendação técnica: fail-closed — leitura vazia, escrita erro.
+- [x] Decidir se o enforcement de membership (por exemplo, `studio_members.role IN ('studio_owner', 'studio_member', 'assembler')` e FK para `studios`/`users`) será implementado nesta fase ou deferido para a tarefa 007 (RBAC e autorização).
+- [x] Aprovar a estratégia de backup/rollback: aplicação das migrações somente no banco descartável `pics_test`; nenhuma alteração em produção, staging ou banco com dados reais.
 
 ## Critérios de aceite
 
-- [ ] Criar migração incremental `backend/alembic/versions/0003_multi_tenant_foundation.py` (não editar `0001` nem `0002`).
+- [x] Criar migração incremental `backend/alembic/versions/0003_multi_tenant_foundation.py` (não editar `0001` nem `0002`).
   - Criar tabela `studios` com campos mínimos: `id`, `name`, `slug` (único), `status`, `created_at`.
   - Criar tabela `studio_members` vinculando `studios.id` e `users.id`; `studio_id NOT NULL`; `user_id NOT NULL`; campo `role` (valores a definir na aprovação).
   - Adicionar `audit_log.studio_id` (nullable, FK para `studios.id` com `ON DELETE RESTRICT`: SET NULL dispararia UPDATE e o trigger append-only levantaria `55000`), com índice adequado.
   - Preservar trigger append-only de `audit_log`; garantir que a nova coluna não quebre a proteção contra `UPDATE`/`DELETE`.
-- [ ] Atualizar models SQLAlchemy: `Studio`, `StudioMember` e `AuditLog` com `studio_id`.
-- [ ] Criar helper de contexto em `backend/app/core/tenancy.py` (ou local aprovado) para executar `SET LOCAL app.studio_id = ...` de forma bind-safe, com reset/transação curta e compatível com pooling de conexões.
-- [ ] Criar roles e policies RLS (após aprovação das decisões):
+- [x] Atualizar models SQLAlchemy: `Studio`, `StudioMember` e `AuditLog` com `studio_id`.
+- [x] Criar helper de contexto em `backend/app/core/tenancy.py` (ou local aprovado) para executar `SET LOCAL app.studio_id = ...` de forma bind-safe, com reset/transação curta e compatível com pooling de conexões.
+- [x] Criar roles e policies RLS (após aprovação das decisões):
   - `app_runtime` sem `SUPERUSER`/`BYPASSRLS`, não owner, com grants mínimos.
   - Role de migração separada; decisão de `BYPASSRLS`/ownership como item aprovado.
   - `ALTER TABLE ... ENABLE ROW LEVEL SECURITY; ALTER TABLE ... FORCE ROW LEVEL SECURITY;` nas tabelas aprovadas (`studios`, `studio_members`; `audit_log` conforme decisão).
   - Policies fail-closed: `WITH CHECK` rejeita `NULL`/inválido; leitura sem contexto retorna vazio (recomendado) ou erro (se aprovado).
-- [ ] Testes sintéticos de integração PostgreSQL em `pics_test`:
+- [x] Testes sintéticos de integração PostgreSQL (FK cruzada tenant→tenant DIFERIDA, não satisfeita; ver relatório) em `pics_test`:
   - Leitura/escrita/UPDATE/DELETE cruzados entre estúdios A e B devem ser isolados.
   - Contexto ausente, vazio e inválido devem ser rejeitidos/vazios conforme política aprovada.
   - Rollback/transação e reutilização de conexão devem resetar o contexto.
   - `audit_log` permanece append-only; UPDATE/DELETE continuam levantando SQLSTATE `55000`.
   - Não criar tabelas de negócio extras só para teste. Testes reais de FK cruzada (tenant → tenant) ficam diferidos até existir relação real; não declarar satisfeito.
-- [ ] **Revisão do `postgres-dba` (03/11/2026), a incorporar antes da aprovação:**
+- [x] **Revisão do `postgres-dba` (03/11/2026), a incorporar antes da aprovação:**
   - Funções pré-contexto (§8 regra 8, S-40, D-32) na 0003, em SQL puro: `public.resolve_user_studios(p_user_id uuid) RETURNS TABLE(studio_id uuid, role text)` e `public.create_studio(p_name text, p_slug text, p_owner_user_id uuid) RETURNS uuid` (estúdio + vínculo `studio_owner` atômicos). `resolve_client_token` e `resolve_payment_ref` ficam diferidas para as tarefas que criarem `client_access` e `payments`, cada uma com função e teste.
   - Todas `SECURITY DEFINER`, `SET search_path = pg_catalog, pg_temp`, objetos qualificados com `public.`, dono `pics_resolver` (NOLOGIN, sem BYPASSRLS/SUPERUSER) com policy própria (FORCE RLS vale também para o dono), `REVOKE ALL ... FROM PUBLIC; GRANT EXECUTE ... TO app_runtime`, retorno só de identificadores e papel.
   - Testes das funções: usuário sem vínculo devolve vazio; `app_runtime` sem contexto não lê `studio_members`; `PUBLIC` sem EXECUTE; conferir `prosecdef`, `proconfig`, `proowner`; `search_path` hostil não altera o resultado.
@@ -67,8 +67,8 @@ Antes de qualquer implementação, o usuário deve aprovar cada item:
   - `tenancy.py`: validar `uuid.UUID`, `SELECT set_config('app.studio_id', :sid, true)` com bind, reaplicar a cada transação (evento `after_begin`), pois o `commit` zera o contexto. Policy lê `NULLIF(current_setting('app.studio_id', true), '')::uuid`; ausente/vazio = zero linhas; valor malformado = erro de cast (documentado).
   - Testes de isolamento em `backend/tests/isolation/`, conectando como `app_runtime` (afirmar `rolbypassrls=false`, `rolsuper=false`, não dono; o PostgreSQL do CI é superusuário). Cobrir A/B em SELECT, INSERT com `studio_id` de B, UPDATE trocando `studio_id`, DELETE, contexto ausente/vazio/inválido, reuso de conexão (`pool_size=1`), rollback e commit no meio da requisição.
   - Observações para `docs/reviews/` (fora desta tarefa): `audit_log.actor_id` em 0001 tem o mesmo conflito de FK SET NULL com o append-only; `users.role` (0001) diverge de `platform_role` (§10); `resolve_user_studios` deve receber `user_id` só da sessão (tarefa 006); downgrade com `DROP COLUMN` seria "contract" em produção.
-- [ ] `ruff check app tests`, `mypy app`, `pytest` (com PostgreSQL em `pics_test`) e `git diff --check` passam.
-- [ ] Atualizar `docs/reviews/005B-fundacao-multi-tenant-rls.md`, `docs/PLANO-MESTRE.md` (seção 20) e `docs/RETOMADA.md`.
+- [x] `ruff check app tests`, `mypy app`, `pytest` (com PostgreSQL em `pics_test`) e `git diff --check` passam.
+- [x] Atualizar `docs/reviews/005B-fundacao-multi-tenant-rls.md`, `docs/PLANO-MESTRE.md` (seção 20) e `docs/RETOMADA.md`.
 
 ## Arquivos que podem ser alterados
 

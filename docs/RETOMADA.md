@@ -5,22 +5,15 @@ Atualizado em 03/11/2026. Checkpoint curto: leia antes de retomar, junto com `CL
 ## Estado atual
 - **Ferramenta:** só Claude Code (Sonnet padrão, Haiku no `Explore`). OpenCode descontinuado; arquivos preservados até a decisão D-31 (o ciclo pago vence em até 2 semanas a partir de 03/11/2026).
 - **Plano:** `docs/PLANO-MESTRE.md` v3.1 (correções da `docs/reviews/revisao-opus-001.md`).
-- **Etapa 0, Fundação:** 003, 003B, 004, 004A, 004B e 005 concluídas (005 em `d10b2ad`: PostgreSQL, SQLAlchemy 2, Alembic, `audit_log` somente inserção, **sem RLS**).
-- **005B** (multi-tenant e RLS): rascunho em `docs/tasks/005B-fundacao-multi-tenant-rls.md`, **não aprovada**. Falta incluir a resolução pré-contexto (plano §8 regra 8, S-40, D-32) e a ADR-007.
-- **ADRs:** 001 a 006 em proposta; 007 a 009 não escritas.
+- **Etapa 0, Fundação: CONCLUÍDA em 03/11/2026.** 003–005 e a 005B (RLS forçada, papéis `pics_migration`/`app_runtime`/`pics_resolver`, funções definer de resolução, `tenancy.py`, 26 testes). Relatório: `docs/reviews/005B-fundacao-multi-tenant-rls.md`.
+- **ADRs:** 001 a 006 em proposta; **007 aprovada**; 008 e 009 não escritas (008 antes da 029, 009 antes da 017).
 - **Tarefas OpenCode 003C, 003D, 003F, 003H e 006 (superpowers):** encerrar como descontinuadas junto com D-31; não reconciliar.
 - **CI remoto** do commit `d10b2ad`: não verificado (`gh` ausente).
 - **Capacidade:** cerca de 25 h/semana. Teto de IA: US$ 50/mês (D-30). Beta: 1 ou 2 fotógrafos confirmados, que aceitam o B1 sem álbuns.
 
-## Pendências do Fagner (fora do repositório)
-1. `~/.claude/settings.json` está com JSON inválido (faltam `{` e `}`). Ao consertar, remover `CLAUDE_CODE_EFFORT_LEVEL: max` (sobrepõe `/effort`) e avaliar remover `CLAUDE_CODE_AUTO_COMPACT_WINDOW`.
-2. Decisões D-27 a D-32 (plano §17) e as anteriores ainda abertas, sobretudo D-01, D-03, D-05, D-26.
-
-## Pendências no repositório (não aplicadas nesta rodada)
-- `.claude/settings.json`: acrescentar o deny de leitura de `.env` por Bash e PowerShell e `ask` para `git push` (texto na revisão Opus 001, §3).
-- Skill `economia-de-tokens`: 4 ajustes de texto (revisão Opus 001, §3).
+## Pendências do Fagner
+1. Decisões D-27 a D-31 e as anteriores ainda abertas, sobretudo D-01, D-03, D-05, D-26. (D-32 aprovada.)
+2. `git push` (nada foi enviado). Em ambiente com volume Docker antigo, rodar `infra/postgres/roles.sql` e definir senhas dos papéis fora do repositório.
 
 ## Próximo passo
-1. (Sonnet) Tarefa pequena: settings do projeto + skill, conforme a revisão Opus 001 §3.
-2. (Sonnet + `postgres-dba`) Escrever a ADR-007 e revisar a 005B com S-40 e D-32. Apresentar ao Fagner para aprovação.
-3. Após aprovação: implementar a 005B, fechar a Etapa 0 e começar a 006.
+Etapa 1, tarefa **006** (identidade e acesso). Ler as observações 3 a 5 do relatório 005B: `user_id` só da sessão, grants por coluna em `users`/`sessions`, startup falha se o papel da API for superusuário. Ver também a 006 de homologação OpenCode (descontinuada, D-31).

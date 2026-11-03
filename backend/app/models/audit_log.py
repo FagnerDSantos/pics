@@ -14,6 +14,7 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
     __table_args__ = (
         Index("ix_audit_log_actor_id", "actor_id"),
+        Index("ix_audit_log_studio_id_at", "studio_id", "at"),
         Index("ix_audit_log_at", "at"),
         Index("ix_audit_log_entity_entity_id", "entity", "entity_id"),
     )
@@ -27,6 +28,10 @@ class AuditLog(Base):
     actor_id: Mapped[UUID | None] = mapped_column(
         PostgreSQLUUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
+    )
+    studio_id: Mapped[UUID | None] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("studios.id", ondelete="RESTRICT"),
     )
     action: Mapped[str] = mapped_column(String(100), nullable=False)
     entity: Mapped[str] = mapped_column(String(100), nullable=False)

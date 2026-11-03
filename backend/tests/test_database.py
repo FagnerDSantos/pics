@@ -1,4 +1,3 @@
-import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
@@ -10,41 +9,21 @@ from alembic.config import Config
 from app.db.session import get_engine
 from app.models import AuditLog, Session, User
 from sqlalchemy import Engine, delete, inspect, select, update
-from sqlalchemy.engine import make_url
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.orm import Session as ORMSession
 
+from tests.db_helpers import ensure_roles, get_test_url, reset_database
+
 BACKEND_DIR = Path(__file__).resolve().parents[1]
-ALLOWED_TEST_HOSTS = {"localhost", "127.0.0.1", "postgres"}
 
 
 @pytest.fixture
 def test_database() -> Iterator[tuple[Config, Engine]]:
-    raw_url = os.environ.get("DATABASE_URL")
-    if not raw_url:
-        pytest.skip(
-            "PostgreSQL integration test requires DATABASE_URL in the environment"
-        )
-
-    try:
-        parsed_url = make_url(raw_url)
-    except (ValueError, TypeError):
-        pytest.fail("DATABASE_URL is not a valid SQLAlchemy URL", pytrace=False)
-
-    if (
-        parsed_url.drivername != "postgresql+psycopg"
-        or parsed_url.database != "pics_test"
-        or parsed_url.host not in ALLOWED_TEST_HOSTS
-    ):
-        pytest.fail(
-            "Integration tests require PostgreSQL Psycopg, a local host, and "
-            "the pics_test database",
-            pytrace=False,
-        )
+    url = get_test_url()
+    ensure_roles(url)
 
     config = Config(str(BACKEND_DIR / "alembic.ini"))
-    command.downgrade(config, "base")
-    command.upgrade(config, "head")
+    reset_database(config, url)
     engine = get_engine()
     try:
         yield config, engine
@@ -59,7 +38,14 @@ def test_migrations_persistence_and_database_constraints(
     test_database: tuple[Config, Engine],
 ) -> None:
     config, engine = test_database
-    expected_tables = {"users", "sessions", "audit_log", "alembic_version"}
+    expected_tables = {
+        "users",
+        "sessions",
+        "audit_log",
+        "studios",
+        "studio_members",
+        "alembic_version",
+    }
     assert expected_tables.issubset(set(inspect(engine).get_table_names()))
 
     user_id = uuid4()
