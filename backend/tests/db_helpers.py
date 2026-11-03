@@ -62,6 +62,14 @@ def reset_database(config: Config, url: URL) -> None:
     """Desfaz tudo (superusuário) e migra como pics_migration, o caminho real:
     o dono dos objetos não é superusuário."""
     command.downgrade(config, "base")
+    # O downgrade como superusuário deixa o alembic_version com dono superusuário
+    # (em banco novo, como no CI); pics_migration não leria. Recria como dono real.
+    engine = create_engine(url)
+    try:
+        with engine.begin() as conn:
+            conn.exec_driver_sql("DROP TABLE IF EXISTS alembic_version")
+    finally:
+        engine.dispose()
     migration_url = role_url(url, "pics_migration")
     os.environ["MIGRATION_DATABASE_URL"] = migration_url.render_as_string(
         hide_password=False
