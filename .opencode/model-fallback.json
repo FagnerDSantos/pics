@@ -1,0 +1,40 @@
+{
+  "models": [
+    "opencode-go/gpt-6-luna",
+    "opencode-go/kimi-k3",
+    "opencode-go/deepseek-v4-pro",
+    "opencode-go/glm-5.3",
+    "opencode/deepseek-v4.1-flash-free"
+  ],
+  "cooldownSeconds": 300,
+  "retryableStatusCodes": [
+    408,
+    425,
+    429,
+    500,
+    502,
+    503,
+    504,
+    529
+  ],
+  "retryableErrorPatterns": [
+    "rate limit",
+    "too many requests",
+    "quota exceeded",
+    "usage limit",
+    "limit reached",
+    "temporarily unavailable",
+    "service unavailable",
+    "overloaded",
+    "gateway timeout",
+    "connection reset",
+    "connection refused",
+    "socket hang up",
+    "network error",
+    "fetch failed",
+    "requires global regions",
+    "not available in your region",
+    "region is not available",
+    "model is unavailable"
+  ]
+}

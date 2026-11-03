@@ -1,7 +1,7 @@
 ---
 description: Revisor de segurança somente leitura. Analisa o git diff contra os itens S-xx do plano mestre e aponta riscos com arquivo:linha, sem alterar código.
 mode: subagent
-model: opencode/glm-5.3-flash-free
+model: opencode-go/minimax-m3.1-flash
 temperature: 0.1
 permission:
   edit: deny
